@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home Page</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <df-messenger
+            intent="WELCOME"
+            chat-title="Test_AI_chat"
+            agent-id="64771957-faf8-423e-8e98-bf9a7d0906e4"
+            language-code="en"
+    ></df-messenger>
+</head>
+<body>
+
+<!-- Import Header -->
+<div th:replace="~{giaodien/header :: header}"></div>
+<div th:replace="~{giaodien/dropdowns :: dropdowns}"></div>
+<div th:replace="~{giaodien/hero-section :: hero-section}"></div>
+
+<main>
+
+    <div style="display: flex; justify-content: center; margin-top: 20px">
+        <img src="/image/nentrang.png" alt="BookStore Logo" class="me-2"
+             style="width: 100%; max-width: 400px; height: auto;">
+    </div>
+
+    <!-- Hiển thị danh sách sách -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4 col-lg-2 mb-4" th:each="book : ${books}">
+                <div class="card border rounded shadow-sm d-flex flex-column h-100">
+                    <!-- Hiển thị phần giảm giá nếu có -->
+                    <span class="badge bg-danger position-absolute" style="top: 10px; left: 10px;"
+                          th:if="${book.donViGias != null and !book.donViGias.isEmpty() and book.donViGias[0].discount > 0}"
+                          th:text="'-' + ${#numbers.formatInteger(book.donViGias[0].discount * 100 / book.donViGias[0].gia, 0)} + '%'">
+                    </span>
+                    <!-- Hiển thị ảnh chính của sách -->
+                    <img th:src="${book.bookImages != null and !book.bookImages.isEmpty() ? book.bookImages[0].imageUrl : '/image/default-book.png'}"
+                         class="card-img-top" alt="Book Image">
+                    <div class="card-body text-center d-flex flex-column">
+                        <!-- Tên sách -->
+                        <h6 class="card-title" th:text="${book.tenSach}"></h6>
+                        <!-- Giá, đơn vị, và giảm giá -->
+                        <div th:if="${book.donViGias != null and !book.donViGias.isEmpty()}">
+                            <!-- Giá sau khi giảm và đơn vị -->
+                            <p class="text-danger fw-bold mb-1">
+                                <span th:text="${#numbers.formatDecimal(book.donViGias[0].gia - book.donViGias[0].discount, 0, 0)} + 'đ'"></span>
+                                <span class="text-muted ms-1" th:text="'/' + ${book.donViGias[0].donVi}"></span>
+                            </p>
+                            <!-- Giá gốc (nếu có giảm giá) -->
+                            <p class="text-muted mb-1" th:if="${book.donViGias[0].discount > 0}">
+                                <span class="text-decoration-line-through"
+                                      th:text="'Giá gốc: ' + ${#numbers.formatDecimal(book.donViGias[0].gia, 0, 0)} + 'đ'"></span>
+                            </p>
+                            <!-- Số tiền giảm giá (nếu có) -->
+                            <p class="text-success mb-1" th:if="${book.donViGias[0].discount > 0}">
+                                <span th:text="'Giảm: ' + ${#numbers.formatDecimal(book.donViGias[0].discount, 0, 0)} + 'đ'"></span>
+                            </p>
+                        </div>
+                        <!-- Thông báo nếu không có đơn vị giá -->
+                        <p class="text-muted" th:unless="${book.donViGias != null and !book.donViGias.isEmpty()}">
+                            Chưa có giá
+                        </p>
+                        <!-- Nút chọn mua -->
+                        <a th:href="@{'/book/sanpham?id=' + ${book.id}}" class="btn btn-primary w-100 mt-auto">Chọn mua</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần sách yêu thích (giữ nguyên, có thể chỉnh sửa sau nếu cần) -->
+    <div class="container py-4">
+        <div class="d-flex align-items-center" style="margin: 10px">
+            <img src="/image/img_15.png" class="icon-img me-2" height="32px" width="32px" alt="Icon">
+            <h4 class="mb-0 title-text">Sách yêu thích</h4>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+            <div class="col">
+                <div class="card text-center">
+                    <img src="/image/img_4.png" class="card-img-top" alt="Book">
+                    <div class="brand-logo-container">
+                        <img src="/image/img_10.png" class="brand-logo" alt="Publisher">
+                    </div>
+                    <div class="card-body">
+                        <p class="text-primary">Giảm đến 35%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card text-center">
+                    <img src="/image/img_5.png" class="card-img-top" alt="Book">
+                    <div class="brand-logo-container">
+                        <img src="/image/img_14.png" class="brand-logo" alt="Publisher">
+                    </div>
+                    <div class="card-body">
+                        <p class="text-primary">Giảm đến 30%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card text-center">
+                    <img src="/image/img_6.png" class="card-img-top" alt="Book">
+                    <div class="brand-logo-container">
+                        <img src="/image/img_13.png" class="brand-logo" alt="Publisher">
+                    </div>
+                    <div class="card-body">
+                        <p class="text-primary">Giảm đến 20%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card text-center">
+                    <img src="/image/img_7.png" class="card-img-top" alt="Book">
+                    <div class="brand-logo-container">
+                        <img src="/image/img_12.png" class="brand-logo" alt="Publisher">
+                    </div>
+                    <div class="card-body">
+                        <p class="text-primary">Voucher giảm đến 30%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card text-center">
+                    <img src="/image/img_8.png" class="card-img-top" alt="Book">
+                    <div class="brand-logo-container">
+                        <img src="/image/img_11.png" class="brand-logo" alt="Publisher">
+                    </div>
+                    <div class="card-body">
+                        <p class="text-primary">Giảm đến 20%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Import Footer -->
+<div th:replace="~{giaodien/footer :: footer}"></div>
+
+</body>
+</html>

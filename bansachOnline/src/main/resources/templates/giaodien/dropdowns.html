@@ -1,0 +1,308 @@
+<div th:fragment="dropdowns">
+  <style>
+    /* Giữ nguyên phần CSS vì không cần thay đổi giao diện mà chỉ thay đổi nội dung */
+    /* Navbar tổng thể */
+    .navbar {
+      background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 10px 0;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .navbar-light .navbar-nav .nav-link {
+      color: #808080;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 10px 12px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .navbar-light .navbar-nav .nav-link:hover,
+    .navbar-light .navbar-nav .nav-link:focus {
+      color: #2d6a4f;
+      background: rgba(45, 106, 79, 0.1);
+      border-radius: 5px;
+    }
+
+    .navbar-light .navbar-nav .nav-link.dropdown-toggle::after {
+      display: inline-block;
+      margin-left: 0.255em;
+      vertical-align: 0.255em;
+      content: "";
+      border-top: 0.3em solid #000;
+      border-right: 0.3em solid transparent;
+      border-bottom: 0;
+      border-left: 0.3em solid transparent;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-light .navbar-nav .nav-link.dropdown-toggle:hover::after {
+      transform: rotate(180deg);
+    }
+
+    .navbar-light .navbar-nav .nav-item {
+      margin-right: 5px;
+    }
+
+    .navbar-nav .nav-item .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      width: 1000px;
+      padding: 25px;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      flex-direction: row;
+      border: 1px solid #e5e7eb;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .navbar-nav .nav-item:hover .dropdown-menu {
+      display: flex;
+      opacity: 1;
+    }
+
+    .menu-left, .menu-right {
+      padding: 20px;
+    }
+
+    .menu-left {
+      width: 35%;
+      border-right: 2px dashed #e5e7eb;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px 0 0 10px;
+    }
+
+    .menu-left .menu-category {
+      font-weight: 700;
+      color: #1a3c34;
+      margin-bottom: 20px;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .menu-left a {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      padding: 12px 15px;
+      text-decoration: none;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .menu-left a:hover {
+      background-color: #1a3c34;
+      color: #ffffff;
+      transform: translateX(5px);
+    }
+
+    .menu-left a img {
+      width: 30px;
+      height: 30px;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-left a:hover img {
+      transform: scale(1.1);
+    }
+
+    .menu-right {
+      width: 65%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 0 10px 10px 0;
+    }
+
+    .menu-right .menu-category {
+      font-weight: 700;
+      color: #2d6a4f;
+      margin-bottom: 20px;
+      font-size: 20px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid #2d6a4f;
+      padding-bottom: 5px;
+    }
+
+    .product-grid {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .product-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .product-grid::-webkit-scrollbar-thumb {
+      background: #2d6a4f;
+      border-radius: 4px;
+    }
+
+    .product-grid .product {
+      text-align: center;
+      font-size: 14px;
+      max-width: 140px;
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-grid .product:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-grid img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .product-grid .product:hover img {
+      transform: scale(1.05);
+    }
+
+    .product-grid .product div {
+      color: #1a3c34;
+      font-weight: 600;
+    }
+  </style>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button">Sách văn học</a>
+            <div class="dropdown-menu">
+              <div class="menu-left">
+                <div class="menu-category">Danh mục</div>
+                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
+                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
+                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
+                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
+                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
+              </div>
+              <div class="menu-right">
+                <div class="menu-category">Sách nổi bật</div>
+                <div class="product-grid" id="van-hoc">
+                  <div class="product"><img src="/image/dacnhantam.png" alt=""><div>Đắc Nhân Tâm<br>120.000đ</div></div>
+                  <div class="product"><img src="/image/nhagiakim.png" alt=""><div>Nhà Giả Kim<br>95.000đ</div></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button">Sách kỹ năng</a>
+            <div class="dropdown-menu">
+              <div class="menu-left">
+                <div class="menu-category">Danh mục</div>
+                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
+                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
+                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
+                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
+                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
+              </div>
+              <div class="menu-right">
+                <div class="menu-category">Sách nổi bật</div>
+                <div class="product-grid" id="ky-nang">
+                  <div class="product"><img src="/image/tuduynhanhcham.png" alt=""><div>Tư Duy Nhanh Và Chậm<br>180.000đ</div></div>
+                  <div class="product"><img src="/image/7thoiquen.png" alt=""><div>7 Thói Quen Hiệu Quả<br>150.000đ</div></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button">Sách thiếu nhi</a>
+            <div class="dropdown-menu">
+              <div class="menu-left">
+                <div class="menu-category">Danh mục</div>
+                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
+                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
+                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
+                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
+                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
+              </div>
+              <div class="menu-right">
+                <div class="menu-category">Sách nổi bật</div>
+                <div class="product-grid" id="thieu-nhi">
+                  <div class="product"><img src="/image/harry.png" alt=""><div>Harry Potter<br>250.000đ</div></div>
+                  <div class="product"><img src="/image/dora.png" alt=""><div>Doraemon<br>35.000đ</div></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button">Sách kinh tế</a>
+            <div class="dropdown-menu">
+              <div class="menu-left">
+                <div class="menu-category">Danh mục</div>
+                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
+                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
+                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
+                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
+                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
+              </div>
+              <div class="menu-right">
+                <div class="menu-category">Sách nổi bật</div>
+                <div class="product-grid" id="kinh-te">
+                  <div class="product"><img src="/image/quocgiakn.png" alt=""><div>Quốc Gia Khởi Nghiệp<br>130.000đ</div></div>
+                  <div class="product"><img src="/image/nguoigiauco.png" alt=""><div>Người Giàu Có Nhất Babylon<br>90.000đ</div></div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    const productData = {
+      tieuthuyet: [
+        { img: "/image/dacnhantam.png", name: "Đắc Nhân Tâm", price: "120.000đ" },
+        { img: "/image/nhagiakim.png", name: "Nhà Giả Kim", price: "95.000đ" }
+      ],
+      truyenngan: [
+        { img: "/image/tuduynhanhcham.png", name: "Tư Duy Nhanh Và Chậm", price: "180.000đ" },
+        { img: "/image/7thoiquen.png", name: "7 Thói Quen Hiệu Quả", price: "150.000đ" }
+      ],
+      tho: [
+        { img: "/image/harry.png", name: "Harry Potter", price: "250.000đ" }
+      ],
+      tuybut: [
+        { img: "/image/dora.png", name: "Doraemon", price: "35.000đ" },
+        { img: "/image/quocgiakn.png", name: "Quốc Gia Khởi Nghiệp", price: "130.000đ" }
+      ],
+      vanhocnuocngoai: [
+        { img: "/image/nguoigiauco.png", name: "Người Giàu Có Nhất Babylon", price: "90.000đ" }
+      ]
+    };
+
+    document.querySelectorAll(".menu-left a").forEach(item => {
+      item.addEventListener("mouseover", function() {
+        const category = this.getAttribute("data-category");
+        const productList = this.closest(".dropdown-menu").querySelector(".product-grid");
+        productList.innerHTML = productData[category].map(p =>
+                `<div class='product'><img src='${p.img}' alt=''><div>${p.name}<br>${p.price}</div></div>`
+        ).join("");
+      });
+    });
+  </script>
+</div>
