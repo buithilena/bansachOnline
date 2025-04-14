@@ -1,10 +1,7 @@
 package com.suki.bansachOnline.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "chitiet_sach")
@@ -17,16 +14,16 @@ public class ChiTietSach {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "book_id")
+    private Integer bookId;
+
+    @Column(name = "tacpham", columnDefinition = "TEXT")
+    private String tacpham;
+
+    @Column(name = "tacgia", columnDefinition = "TEXT")
+    private String tacgia;
+
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "book_id", insertable = false, updatable = false)
     private Book book;
-
-    @Column(name = "mo_ta_chi_tiet")
-    private String moTaChiTiet;
-
-    @Column(name = "danh_gia_ngan")
-    private String danhGiaNgan;
-
-    @Column(name = "thong_tin_them")
-    private String thongTinThem;
 }

@@ -33,8 +33,9 @@ public class BookService {
         return book.orElse(null);
     }
 
-    public List<Book> getBooksByDoiTuongId(int doiTuongId) {
-        return bookRepository.findByDoiTuongId(doiTuongId);
+    public List<Book> getBooksByDoiTuongId(int doiTuongId, int limit) {
+        List<Book> books = bookRepository.findByDoiTuongId(doiTuongId);
+        return books.size() > limit ? books.subList(0, limit) : books;
     }
 
     public DonViGia getDonViGiaById(int bookId, int donViGiaId) {
@@ -46,7 +47,7 @@ public class BookService {
     }
 
     public ChiTietSach getChiTietSachByBookId(int bookId) {
-        return chiTietSachRepository.findByBookId(bookId);
+        return chiTietSachRepository.findByBookId(bookId).orElse(null);
     }
 
     public List<CauHoiLienQuan> getCauHoiLienQuanByBookId(int bookId) {
@@ -54,6 +55,7 @@ public class BookService {
     }
 
     public List<Book> getRelatedBooks(int bookId, int limit) {
-        return bookRepository.findRelatedBooks(bookId, limit);
+        List<Book> relatedBooks = bookRepository.findRelatedBooks(bookId);
+        return relatedBooks.size() > limit ? relatedBooks.subList(0, limit) : relatedBooks;
     }
 }

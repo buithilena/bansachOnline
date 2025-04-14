@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ public class BookController {
 
     private final BookService bookService;
 
-    // Hiển thị chi tiết sách
     @GetMapping("/sanpham")
     public String bookDetail(@RequestParam("id") int bookId, Model model) {
         Book book = bookService.getBookById(bookId);
@@ -31,28 +29,26 @@ public class BookController {
         }
 
         List<BookImage> images = bookService.getBookImages(bookId);
-        ChiTietSach chiTietSach = bookService.getChiTietSachByBookId(bookId);
-        List<CauHoiLienQuan> cauHoiLienQuan = bookService.getCauHoiLienQuanByBookId(bookId);
-        List<Book> relatedBooks = bookService.getRelatedBooks(bookId, 6);
+        String mainImageUrl = images.stream()
+                .filter(BookImage::getIsMain)
+                .findFirst()
+                .map(BookImage::getImageUrl)
+                .orElse("/images/placeholder.png");
 
-        model.addAttribute("book", book);
+        ChiTietSach chiTietSach = bookService.getChiTietSachByBookId(bookId);
+        List<Book> relatedBooks = bookService.getRelatedBooks(bookId, 4);
+        List<CauHoiLienQuan> cauHoiLienQuan = bookService.getCauHoiLienQuanByBookId(bookId);
+
+        model.addAttribute("product", book);
         model.addAttribute("images", images);
-        model.addAttribute("chiTietSach", chiTietSach);
+        model.addAttribute("mainImageUrl", mainImageUrl);
+        model.addAttribute("chiTietSanPham", chiTietSach);
+        model.addAttribute("products", relatedBooks);
         model.addAttribute("cauHoiLienQuan", cauHoiLienQuan);
-        model.addAttribute("relatedBooks", relatedBooks);
 
         return "sanpham";
     }
 
-    // Lấy danh sách sách theo đối tượng độc giả
-    @GetMapping("/books-by-doituong")
-    public String getBooksByDoiTuong(@RequestParam("doiTuongId") int doiTuongId, Model model) {
-        List<Book> books = bookService.getBooksByDoiTuongId(doiTuongId);
-        model.addAttribute("books", books);
-        return "trangchu :: book-by-doituong-fragment";
-    }
-
-    // Cập nhật giá sách dựa trên đơn vị giá
     @GetMapping("/update-price")
     @ResponseBody
     public Map<String, Object> updatePrice(@RequestParam("bookId") int bookId,
@@ -62,15 +58,25 @@ public class BookController {
         DonViGia selectedDonViGia = bookService.getDonViGiaById(bookId, donViGiaId);
 
         if (selectedDonViGia != null && book != null) {
-            BigDecimal discountedPrice = BigDecimal.valueOf(selectedDonViGia.getGia() - selectedDonViGia.getDiscount());
+            // Tính giá sau khi giảm dựa trên phần trăm
+            double discountedPrice = selectedDonViGia.getGia() * (1 - selectedDonViGia.getDiscount() / 100.0);
             response.put("discountedPrice", discountedPrice);
             response.put("gia", selectedDonViGia.getGia());
-            response.put("donViGia", selectedDonViGia.getDonVi());
+            response.put("donVi", selectedDonViGia.getDonVi());
             response.put("hasDiscount", selectedDonViGia.getDiscount() > 0);
-            response.put("discount", selectedDonViGia.getDiscount() != null ? selectedDonViGia.getDiscount() : BigDecimal.ZERO);
+            response.put("discount", selectedDonViGia.getDiscount()); // Trả về phần trăm giảm giá
         } else {
             response.put("error", "Không tìm thấy đơn vị giá hoặc sách.");
         }
+        return response;
+    }
+
+    @GetMapping("/products-by-doituong")
+    @ResponseBody
+    public Map<String, Object> getProductsByDoiTuong(@RequestParam("doiTuongId") int doiTuongId) {
+        Map<String, Object> response = new HashMap<>();
+        List<Book> books = bookService.getBooksByDoiTuongId(doiTuongId, 10); // Tăng giới hạn lên 10 sách
+        response.put("products", books);
         return response;
     }
 }

@@ -34,7 +34,7 @@ public class Book {
     @Column(name = "so_luong")
     private Integer soLuong;
 
-    @Column(name = "ten_sach")
+    @Column(name = "ten_sach", nullable = false)
     private String tenSach;
 
     @Column(name = "tac_gia")
@@ -46,17 +46,48 @@ public class Book {
     @Column(name = "ngon_ngu")
     private String ngonNgu;
 
+    @Column(name = "danhmuc_id")
+    private Integer danhmucId;
+
+    @Column(name = "doi_tuong_id")
+    private Integer doiTuongId;
+
     @ManyToOne
-    @JoinColumn(name = "danhmuc_id")
+    @JoinColumn(name = "danhmuc_id", insertable = false, updatable = false)
     private DanhMuc danhMuc;
 
     @ManyToOne
-    @JoinColumn(name = "doi_tuong_id")
+    @JoinColumn(name = "doi_tuong_id", insertable = false, updatable = false)
     private DoiTuong doiTuong;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<DonViGia> donViGias;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookImage> bookImages;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DonViGia> donViGias;
+    // Phương thức hỗ trợ
+    public boolean hasDiscount() {
+        return donViGias != null && !donViGias.isEmpty() && donViGias.get(0).getDiscount() > 0;
+    }
+
+    public DonViGia getDefaultDonViTinh() {
+        return donViGias != null && !donViGias.isEmpty() ? donViGias.get(0) : null;
+    }
+
+
+
+    public String getMainImageUrl() {
+        return bookImages != null && !bookImages.isEmpty() ?
+                bookImages.stream().filter(BookImage::getIsMain).findFirst().map(BookImage::getImageUrl).orElse("/images/placeholder.png")
+                : "/images/placeholder.png";
+    }
+    public double getDiscountedPrice() {
+        DonViGia defaultDvt = getDefaultDonViTinh();
+        if (defaultDvt != null && defaultDvt.getDiscount() > 0) {
+            // Tính giá sau khi giảm dựa trên phần trăm
+            return defaultDvt.getGia() * (1 - defaultDvt.getDiscount() / 100.0);
+        }
+        return defaultDvt != null ? defaultDvt.getGia() : 0;
+    }
 }

@@ -54,6 +54,7 @@ public class HomeController {
         Page<Book> bookPage = bookService.getBooks(pageable);
         List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
 
+
         model.addAttribute("books", bookPage.getContent());
         model.addAttribute("totalPages", bookPage.getTotalPages());
         model.addAttribute("currentPage", page);
