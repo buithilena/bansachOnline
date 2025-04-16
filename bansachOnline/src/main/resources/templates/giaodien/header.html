@@ -1,4 +1,4 @@
-header.html: <div th:fragment="header">
+<div th:fragment="header">
     <style>
         /* Reset và typography cơ bản */
         * {
@@ -670,26 +670,26 @@ header.html: <div th:fragment="header">
             <div class="row align-items-center py-3">
                 <!-- Logo và tên thương hiệu -->
                 <div class="col-12 col-sm-4 col-lg-3 brand-section">
-                    <img src="/image/logo.png" style="height: 64px" alt="Medical Care Logo">
+                    <img src="/image/logo.png" style="height: 64px" alt="Book Store Logo">
                     <div>
                         <a th:href="@{/giaodien/header}">Book Store</a>
                         <div class="subtitle">BORCELLE</div>
                     </div>
                 </div>
 
-                <!-- Thanh tìm kiếm (ẩn trên mobile) -->
+                <!-- Thanh tìm kiếm -->
                 <div class="col-sm-6 col-lg-5 d-none d-lg-block">
                     <div class="search-barhome">
                         <select class="form-select">
                             <option>Danh Mục Sách</option>
                             <option>Sách Văn Học</option>
-                            <option>Supplements</option>
-                            <option>Devices</option>
+                            <option>Sách Khoa Học</option>
+                            <option>Sách Thiếu Nhi</option>
                         </select>
-                        <form id="search-form" action="index.html" method="post">
-                            <input type="text" placeholder="Tìm Kiếm">
+                        <form id="search-form" action="/search" method="get">
+                            <input type="text" name="query" placeholder="Tìm Kiếm">
                         </form>
-                        <button type="submit" class="search-button">
+                        <button type="submit" class="search-button" form="search-form">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/>
                             </svg>
@@ -711,11 +711,11 @@ header.html: <div th:fragment="header">
                             <img th:src="${loggedInUser.picture}" alt="User Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" />
                         </a>
 
-                        <a href="#">
+                        <a href="/wishlist">
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>
                         </a>
                         <div class="cart-dropdown-wrapper position-relative">
-                            <a href="#" class="cart-icon">
+                            <a href="/cart" class="cart-icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#cart"></use></svg>
                                 <span class="cart-count badge bg-danger rounded-circle position-absolute" th:text="${cartItemCount != null ? cartItemCount : 0}">0</span>
                             </a>
@@ -723,13 +723,12 @@ header.html: <div th:fragment="header">
                                 <h5 class="cart-title">Giỏ hàng</h5>
                                 <ul class="cart-items list-unstyled" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
                                     <li class="cart-item d-flex align-items-start" th:each="item : ${cartItems}">
-                                        <img th:src="${item.product.mainImageUrl ?: '/images/placeholder.png'}" alt="Product Image" class="cart-item-img">
+                                        <img th:src="${item.book.mainImageUrl ?: '/images/placeholder.png'}" alt="Book Image" class="cart-item-img">
                                         <div class="cart-item-details flex-grow-1">
-                                            <strong th:text="${item.product.tenSanPham}"></strong>
+                                            <strong th:text="${item.book.tenSach}"></strong>
                                             <div class="cart-item-info d-flex justify-content-between align-items-center">
-                                                <p class="cart-item-price mb-0" th:text="${#numbers.formatDecimal(item.price, 0, 0)} + 'đ'"></p>
-                                                <span class="cart-item-quantity" th:text="'x' + ${item.quantity} + ' ' + ${item.donViTinh.donViTinh}"></span>
-                                            </div>
+                                                <p class="cart-item-price mb-0" th:text="${#numbers.formatDecimal(item.donViGia.gia, 0, 0)} + 'đ'"></p>
+                                                <span class="cart-item-quantity" th:text="'x' + ${item.quantity} + ' ' + ${item.donViGia.donVi}"></span>                                            </div>
                                         </div>
                                         <a href="#" class="delete-item align-self-center" th:onclick="'removeFromCart(' + ${item.id} + ')'">
                                             <svg width="16" height="16" viewBox="0 0 24 24"><use xlink:href="#trash"></use></svg>
@@ -745,7 +744,6 @@ header.html: <div th:fragment="header">
                         <a th:href="@{/logout}" th:if="${loggedInUser != null}" class="ms-2">
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#logout"></use></svg>
                         </a>
-
                     </div>
                 </div>
             </div>
@@ -760,7 +758,6 @@ header.html: <div th:fragment="header">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <!-- Tabs chuyển đổi giữa Đăng nhập và Đăng ký -->
                         <ul class="nav nav-tabs justify-content-center mb-4" id="loginTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Đăng nhập</button>
@@ -770,14 +767,12 @@ header.html: <div th:fragment="header">
                             </li>
                         </ul>
 
-                        <!-- Nội dung của các tab -->
                         <div class="tab-content" id="loginTabContent">
-                            <!-- Tab Đăng nhập -->
                             <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
-                                <form action="/login" method="post">
+                                <form action="/api/login" method="post">
                                     <div class="mb-3 text-start">
                                         <label for="loginPhone" class="form-label">Số điện thoại</label>
-                                        <input type="tel" class="form-control" id="loginPhone" name="phone" placeholder="Nhập số điện thoại" required>
+                                        <input type="tel" class="form-control" id="loginPhone" name="phoneNumber" placeholder="Nhập số điện thoại" required>
                                     </div>
                                     <div class="mb-3 text-start">
                                         <label for="loginPassword" class="form-label">Mật khẩu</label>
@@ -794,7 +789,6 @@ header.html: <div th:fragment="header">
                                 </a>
                             </div>
 
-                            <!-- Tab Đăng ký -->
                             <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
                                 <form action="/register" method="post">
                                     <div class="mb-3 text-start">
@@ -827,72 +821,53 @@ header.html: <div th:fragment="header">
                 </div>
             </div>
         </div>
-
-
-
-        <!-- Offcanvas giỏ hàng -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasCartLabel">Giỏ hàng của bạn</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <h5 class="fw-bold text-warning">Giỏ hàng <span class="badge bg-warning text-dark">3</span></h5>
-                <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="cart-item-details">
-                            <strong>Thuốc ho</strong>
-                            <p class="text-muted small mb-0">Hỗ trợ giảm ho</p>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <span>Số lượng: 2</span>
-                            <span class="cart-item-price">$12</span>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="cart-item-details">
-                            <strong>Vitamin C</strong>
-                            <p class="text-muted small mb-0">Tăng cường miễn dịch</p>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <span>Số lượng: 1</span>
-                            <span class="cart-item-price">$8</span>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="cart-item-details">
-                            <strong>Paracetamol</strong>
-                            <p class="text-muted small mb-0">Giảm đau, hạ sốt</p>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <span>Số lượng: 3</span>
-                            <span class="cart-item-price">$5</span>
-                        </div>
-                    </li>
-                </ul>
-                <div class="d-flex justify-content-between fw-bold border-top pt-2">
-                    <span>Tổng (USD)</span>
-                    <span class="text-success">$25</span>
-                </div>
-                <button class="btn btn-warning w-100 mt-3">Thanh toán ngay</button>
-            </div>
-        </div>
     </div>
+
     <script>
         function removeFromCart(cartItemId) {
             $.ajax({
                 url: '/cart/remove',
                 type: 'POST',
                 data: { cartItemId: cartItemId },
+                headers: {
+                    [$("meta[name='_csrf_header']").attr("content")]: $("meta[name='_csrf']").attr("content")
+                },
                 success: function(response) {
-                    alert('Sản phẩm đã được xóa khỏi giỏ hàng!');
-                    location.reload(); // Tải lại trang để cập nhật giỏ hàng
+                    if (response.success) {
+                        Toastify({
+                            text: "Sản phẩm đã được xóa khỏi giỏ hàng!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#28a745",
+                            stopOnFocus: true
+                        }).showToast();
+                        location.reload();
+                    } else {
+                        Toastify({
+                            text: response.message || "Đã xảy ra lỗi khi xóa sản phẩm!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#dc3545",
+                            stopOnFocus: true
+                        }).showToast();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Lỗi khi xóa sản phẩm:', error);
-                    alert('Đã xảy ra lỗi khi xóa sản phẩm!');
+                    Toastify({
+                        text: "Đã xảy ra lỗi khi xóa sản phẩm!",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#dc3545",
+                        stopOnFocus: true
+                    }).showToast();
                 }
             });
         }
     </script>
+
+
 </div>

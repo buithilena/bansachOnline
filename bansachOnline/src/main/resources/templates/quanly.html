@@ -3,259 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Quản lý bán thuốc online</title>
+    <title>Admin - Quản lý bán sách online</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-            transition: width 0.3s;
-        }
-        .sidebar.collapsed {
-            width: 70px;
-        }
-        .sidebar.collapsed a span {
-            display: none;
-        }
-        .sidebar a {
-            color: white;
-            padding: 15px;
-            display: block;
-            text-decoration: none;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .sidebar a.active {
-            background-color: #495057;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            transition: margin-left 0.3s;
-        }
-        .main-content.expanded {
-            margin-left: 70px;
-        }
-        .navbar-brand img {
-            width: 40px;
-            height: 40px;
-        }
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .filter-box {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
-            .sidebar a span {
-                display: none;
-            }
-            .chart-container {
-                height: 250px;
-                max-width: 100%;
-            }
-        }
-        .modal-xl {
-            max-width: 900px;
-        }
-        h6 {
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .image-row, .unit-row {
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-
-        .unit-input-section {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-control, .form-select {
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            transition: border-color 0.3s;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-
-        .table-light {
-            background-color: #f8f9fa;
-        }
-
-        .image-input-section {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .image-preview {
-            margin-top: 10px;
-        }
-
-        .table th, .table td {
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .table img {
-            max-width: 50px;
-            max-height: 50px;
-            border-radius: 5px;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-            transition: background-color 0.3s;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            transition: background-color 0.3s;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #c82333;
-        }
-        /* Styling for warehouse table */
-        #warehouse-table th, #warehouse-table td {
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        #warehouse-table .badge {
-            font-size: 0.9em;
-            padding: 5px 10px;
-        }
-
-        #warehouse-table .badge-success {
-            background-color: #28a745;
-        }
-
-        #warehouse-table .badge-warning {
-            background-color: #ffc107;
-        }
-
-        #warehouse-table .badge-danger {
-            background-color: #dc3545;
-        }
-
-        #warehouse-table .sort-icon {
-            cursor: pointer;
-            margin-left: 5px;
-        }
-
-        #warehouse-table .sort-icon:hover {
-            color: #007bff;
-        }
-
-        #warehouse-table .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.875rem;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            #search-warehouse, #filter-warehouse-type, #filter-warehouse-status {
-                width: 100% !important;
-                margin-bottom: 10px;
-            }
-
-            .modal-xl {
-                max-width: 95%;
-            }
-        }
-
-        .inventory-status-valid {
-            color: green;
-            font-weight: bold;
-        }
-        .inventory-status-near-expiry {
-            color: orange;
-            font-weight: bold;
-        }
-        .inventory-status-expired {
-            color: red;
-            font-weight: bold;
-        }
-
-        .modal-body .form-control[readonly],
-        .modal-body .form-select[disabled] {
-            background-color: #f8f9fa;
-            opacity: 1;
-            border-color: #ced4da;
-        }
-
-        .modal-body .form-control:focus:not([readonly]),
-        .modal-body .form-select:focus:not([disabled]) {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-
-        .table .btn-sm {
-            padding: 4px 8px;
-            font-size: 0.8rem;
-        }
-
-
-
-
-
-
-    </style>
+    <link rel="stylesheet" href="/css/quanly.css">
 </head>
 <body>
 <!-- Thanh điều hướng (Sidebar) -->
@@ -368,12 +123,12 @@
             </div>
         </div>
     </div>
-    <!-- Quản lý sản phẩm -->
+
     <!-- Quản lý sản phẩm -->
     <div class="container-fluid content-section" id="products" style="display: none;">
         <h3 class="mt-5">Danh sách sản phẩm</h3>
         <div class="mb-3">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Thêm sản phẩm</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModal">Thêm sản phẩm</button>
             <button class="btn btn-success">Xuất PDF</button>
         </div>
         <div class="filter-box">
@@ -384,7 +139,6 @@
                 <div class="col-md-4">
                     <select class="form-select" id="filter-category">
                         <option value="">Lọc theo danh mục</option>
-                        <!-- Danh mục sẽ được load động -->
                     </select>
                 </div>
             </div>
@@ -394,26 +148,25 @@
                 <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Thương hiệu</th>
+                    <th>Tên Sách</th>
+                    <th>Tác Giả</th>
                     <th>Giá(VND)</th>
                     <th>Số lượng tồn kho</th>
                     <th>Hình ảnh chính</th>
-                    <th>Ngày sản xuất/Hạn sử dụng</th>
+                    <th>Nhà Xuất Bản</th>
                     <th>Hành động</th>
                 </tr>
                 </thead>
                 <tbody id="products-tbody">
-                <!-- Dữ liệu sẽ được load động -->
                 </tbody>
             </table>
         </div>
         <nav aria-label="Page navigation">
             <ul class="pagination" id="products-pagination">
-                <!-- Phân trang sẽ được load động -->
             </ul>
         </nav>
     </div>
+
     <!-- Quản lý người dùng -->
     <div class="container-fluid content-section" id="users" style="display: none;">
         <h3 class="mt-5">Danh sách người dùng</h3>
@@ -537,11 +290,8 @@
     </div>
 
     <!-- Quản lý kho -->
-    <!-- Quản lý kho -->
     <div class="container-fluid content-section" id="inventory" style="display: none;">
         <h3 class="mt-5">Quản lý kho</h3>
-
-        <!-- Thanh công cụ -->
         <div class="mb-3 d-flex justify-content-between align-items-center">
             <div>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -558,20 +308,16 @@
                 <input type="text" class="form-control" id="search-inventory" placeholder="Tìm kiếm theo sản phẩm, số lô, mã kho..." style="width: 300px;">
             </div>
         </div>
-
-        <!-- Bộ lọc -->
         <div class="filter-box mb-3">
             <div class="row">
                 <div class="col-md-3">
                     <select class="form-select" id="filter-warehouse">
                         <option value="">Lọc theo kho</option>
-                        <!-- Danh sách kho load động -->
                     </select>
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="filter-product">
                         <option value="">Lọc theo sản phẩm</option>
-                        <!-- Danh sách sản phẩm load động -->
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -585,13 +331,10 @@
                 <div class="col-md-3">
                     <select class="form-select" id="filter-supplier">
                         <option value="">Lọc theo nhà cung cấp</option>
-                        <!-- Danh sách nhà cung cấp load động -->
                     </select>
                 </div>
             </div>
         </div>
-
-        <!-- Danh sách tồn kho -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover" id="inventory-table">
                 <thead class="thead-dark">
@@ -610,17 +353,13 @@
                 </tr>
                 </thead>
                 <tbody id="inventory-tbody">
-                <!-- Dữ liệu sẽ được load động -->
                 </tbody>
             </table>
         </div>
         <nav aria-label="Page navigation">
             <ul class="pagination" id="inventory-pagination">
-                <!-- Phân trang sẽ được load động -->
             </ul>
         </nav>
-
-        <!-- Lịch sử giao dịch kho -->
         <h4 class="mt-5">Lịch sử giao dịch kho</h4>
         <div class="mb-3">
             <input type="text" class="form-control" id="search-transactions" placeholder="Tìm kiếm giao dịch theo sản phẩm, số lô, loại giao dịch..." style="width: 300px;">
@@ -656,13 +395,11 @@
                 </tr>
                 </thead>
                 <tbody id="transaction-tbody">
-                <!-- Dữ liệu sẽ được load động -->
                 </tbody>
             </table>
         </div>
         <nav aria-label="Page navigation">
             <ul class="pagination" id="transaction-pagination">
-                <!-- Phân trang sẽ được load động -->
             </ul>
         </nav>
     </div>
@@ -682,14 +419,12 @@
                                 <label for="inventory_warehouse_id" class="form-label">Kho <span class="text-danger">*</span></label>
                                 <select class="form-select" id="inventory_warehouse_id" required>
                                     <option value="">Chọn kho</option>
-                                    <!-- Danh sách kho load động -->
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="inventory_product_id" class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                                 <select class="form-select" id="inventory_product_id" required>
                                     <option value="">Chọn sản phẩm</option>
-                                    <!-- Danh sách sản phẩm load động -->
                                 </select>
                             </div>
                         </div>
@@ -708,7 +443,6 @@
                                 <label for="inventory_supplier_id" class="form-label">Nhà cung cấp</label>
                                 <select class="form-select" id="inventory_supplier_id">
                                     <option value="">Chọn nhà cung cấp</option>
-                                    <!-- Danh sách nhà cung cấp load động -->
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -756,14 +490,12 @@
                                 <label for="edit_inventory_warehouse_id" class="form-label">Kho <span class="text-danger">*</span></label>
                                 <select class="form-select" id="edit_inventory_warehouse_id" required>
                                     <option value="">Chọn kho</option>
-                                    <!-- Danh sách kho load động -->
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="edit_inventory_product_id" class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                                 <select class="form-select" id="edit_inventory_product_id" required>
                                     <option value="">Chọn sản phẩm</option>
-                                    <!-- Danh sách sản phẩm load động -->
                                 </select>
                             </div>
                         </div>
@@ -782,7 +514,6 @@
                                 <label for="edit_inventory_supplier_id" class="form-label">Nhà cung cấp</label>
                                 <select class="form-select" id="edit_inventory_supplier_id">
                                     <option value="">Chọn nhà cung cấp</option>
-                                    <!-- Danh sách nhà cung cấp load động -->
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -819,7 +550,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Thanh công cụ -->
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <div>
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWarehouseModal">
@@ -842,8 +572,6 @@
                             </select>
                         </div>
                     </div>
-
-                    <!-- Danh sách kho -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover" id="warehouse-table">
                             <thead class="thead-dark">
@@ -862,12 +590,11 @@
                                 </th>
                                 <th style="width: 10%;">Loại kho</th>
                                 <th style="width: 10%;">Trạng thái</th>
-                                <th style="width: 10%;">Người quản lý</th> <!-- Thêm cột mới -->
+                                <th style="width: 10%;">Người quản lý</th>
                                 <th style="width: 10%;">Hành động</th>
                             </tr>
                             </thead>
                             <tbody id="warehouse-tbody">
-                            <!-- Dữ liệu sẽ được load động -->
                             </tbody>
                         </table>
                     </div>
@@ -1040,120 +767,106 @@
         </div>
     </div>
 
-
-    <!-- Modal Thêm sản phẩm -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <!-- Modal Thêm sách -->
+    <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel">Thêm sản phẩm mới</h5>
+                    <h5 class="modal-title" id="addBookModalLabel">Thêm sách mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addProductForm">
+                    <form id="addBookForm">
                         <h6 class="mt-3">Thông tin cơ bản</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="ten_san_pham" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="ten_san_pham" required>
+                                <label for="ten_sach" class="form-label">Tên sách <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="ten_sach" required placeholder="VD: Đắc Nhân Tâm">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="thuong_hieu" class="form-label">Thương hiệu</label>
-                                <input type="text" class="form-control" id="thuong_hieu">
+                                <label for="tac_gia" class="form-label">Tác giả</label>
+                                <input type="text" class="form-control" id="tac_gia" placeholder="VD: Dale Carnegie">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cong_dung" class="form-label">Công dụng</label>
-                            <textarea class="form-control" id="cong_dung" rows="2"></textarea>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="doi_tuong_id" class="form-label">Đối tượng sử dụng</label>
-                                <select class="form-select" id="doi_tuong_id">
-                                    <option value="">Chọn đối tượng</option>
-                                    <option value="1">Người lớn</option>
-                                    <option value="2">Trẻ em</option>
-                                    <option value="3">Thêm đối tượng sử dụng!</option>
-                                </select>
-                            </div>
-                            <!-- Trong modal Thêm sản phẩm -->
                             <div class="col-md-6 mb-3">
                                 <label for="danhmuc_id" class="form-label">Danh mục <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <select class="form-select" id="danhmuc_id" required>
-                                        <option value="">Chọn danh mục</option>
-                                        <option value="add-category">Thêm danh mục!</option>
-                                    </select>
-                                </div>
+                                <select class="form-select" id="danhmuc_id" required>
+                                    <option value="">Chọn danh mục</option>
+                                    <option value="add-category">Thêm danh mục mới!</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="doi_tuong_id" class="form-label">Đối tượng độc giả</label>
+                                <select class="form-select" id="doi_tuong_id">
+                                    <option value="">Chọn đối tượng</option>
+                                    <option value="add-doi-tuong">Thêm đối tượng mới!</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nha_xuat_ban" class="form-label">Nhà xuất bản</label>
+                                <input type="text" class="form-control" id="nha_xuat_ban" placeholder="VD: Nhà xuất bản Trẻ">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="thuong_hieu" class="form-label">Nhà phát hành</label>
+                                <input type="text" class="form-control" id="thuong_hieu" placeholder="VD: Nhã Nam">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="dang_bao_che" class="form-label">Dạng bào chế</label>
-                                <input type="text" class="form-control" id="dang_bao_che">
+                                <label for="nam_xuat_ban" class="form-label">Năm xuất bản</label>
+                                <input type="number" class="form-control" id="nam_xuat_ban" min="1800" max="2025" placeholder="VD: 2023">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="quy_cach" class="form-label">Quy cách</label>
-                                <input type="text" class="form-control" id="quy_cach">
+                                <label for="so_trang" class="form-label">Số trang</label>
+                                <input type="number" class="form-control" id="so_trang" min="1" placeholder="VD: 300">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="xuat_xu_thuong_hieu" class="form-label">Xuất xứ thương hiệu</label>
-                                <input type="text" class="form-control" id="xuat_xu_thuong_hieu">
+                                <label for="ngon_ngu" class="form-label">Ngôn ngữ</label>
+                                <input type="text" class="form-control" id="ngon_ngu" placeholder="VD: Tiếng Việt">
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="nha_san_xuat" class="form-label">Nhà sản xuất</label>
-                                <input type="text" class="form-control" id="nha_san_xuat">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="nuoc_san_xuat" class="form-label">Nước sản xuất</label>
-                                <input type="text" class="form-control" id="nuoc_san_xuat">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="so_dang_ky" class="form-label">Số đăng ký</label>
-                                <input type="text" class="form-control" id="so_dang_ky">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="thanh_phan" class="form-label">Thành phần</label>
-                            <textarea class="form-control" id="thanh_phan" rows="2"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="mo_ta_ngan" class="form-label">Mô tả ngắn</label>
-                            <textarea class="form-control" id="mo_ta_ngan" rows="2"></textarea>
+                            <textarea class="form-control" id="mo_ta_ngan" rows="3" placeholder="Mô tả ngắn gọn về nội dung sách (tối đa 255 ký tự)"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="so_luong" class="form-label">Số lượng tồn kho</label>
+                                <input type="number" class="form-control" id="so_luong" min="0" placeholder="VD: 100">
+                            </div>
                         </div>
 
-                        <h6 class="mt-3">Hình ảnh sản phẩm</h6>
+                        <h6 class="mt-3">Hình ảnh sách</h6>
                         <div class="image-input-section mb-4 p-3 border rounded bg-light">
                             <div class="row align-items-end">
                                 <div class="col-md-5 mb-3">
                                     <label class="form-label">URL ảnh <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="image-url" placeholder="Nhập URL ảnh">
+                                    <input type="text" class="form-control" id="image_url" placeholder="Nhập URL ảnh sách" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Ảnh chính</label>
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="image-is-main">
-                                        <label class="form-check-label" for="image-is-main">Chọn làm ảnh chính</label>
+                                        <input type="checkbox" class="form-check-input" id="image_is_main">
+                                        <label class="form-check-label" for="image_is_main">Chọn làm ảnh chính</label>
                                     </div>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Thứ tự</label>
-                                    <input type="number" class="form-control" id="image-order" value="0" min="0">
+                                    <input type="number" class="form-control" id="image_order" value="0" min="0">
                                 </div>
                                 <div class="col-md-3 mb-3 text-end">
-                                    <button type="button" class="btn btn-primary" id="add-image"><i class="fas fa-plus"></i> Thêm ảnh</button>
+                                    <button type="button" class="btn btn-primary" id="add_image"><i class="fas fa-plus"></i> Thêm ảnh</button>
                                 </div>
                             </div>
-                            <!-- Preview ảnh -->
-                            <div class="image-preview mt-3" id="image-preview" style="display: none;">
-                                <img id="preview-image" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                            <div class="image-preview mt-3" id="image_preview" style="display: none;">
+                                <img id="preview_image" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
                             </div>
                         </div>
-
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="image-table">
+                            <table class="table table-bordered table-hover" id="image_table">
                                 <thead class="table-light">
                                 <tr>
                                     <th style="width: 40%;">URL ảnh</th>
@@ -1163,8 +876,7 @@
                                     <th style="width: 15%;">Hành động</th>
                                 </tr>
                                 </thead>
-                                <tbody id="image-table-body">
-                                <!-- Dữ liệu ảnh sẽ được thêm động -->
+                                <tbody id="image_table_body">
                                 </tbody>
                             </table>
                         </div>
@@ -1174,31 +886,32 @@
                             <div class="row align-items-end">
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Đơn vị tính <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="unit-name">
-                                        <option selected disabled value="">Chọn đơn vị tính</option>
-                                        <!-- Danh sách sẽ được tải động từ JS -->
+                                    <select class="form-select" id="don_vi" required>
+                                        <option value="">Chọn đơn vị tính</option>
+                                        <option value="Cuốn">Cuốn</option>
+                                        <option value="Bộ">Bộ</option>
+                                        <option value="add-unit">Thêm đơn vị mới!</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="unit-price" min="0" placeholder="Nhập giá">
+                                    <input type="number" class="form-control" id="gia" min="0" required placeholder="VD: 150000">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Giảm giá (%)</label>
-                                    <input type="number" class="form-control" id="unit-discount" value="0" min="0" max="100" placeholder="Nhập % giảm giá">
+                                    <input type="number" class="form-control" id="discount" value="0" min="0" max="100" placeholder="VD: 10">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Ghi chú</label>
-                                    <input type="text" class="form-control" id="unit-note" placeholder="Ghi chú (nếu có)">
+                                    <input type="text" class="form-control" id="ghi_chu_don_vi" placeholder="Ghi chú (nếu có)">
                                 </div>
                                 <div class="col-md-2 mb-3 text-end">
-                                    <button type="button" class="btn btn-primary" id="add-unit"><i class="fas fa-plus"></i> Thêm đơn vị</button>
+                                    <button type="button" class="btn btn-primary" id="add_unit"><i class="fas fa-plus"></i> Thêm đơn vị</button>
                                 </div>
                             </div>
                         </div>
-
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="unit-table">
+                            <table class="table table-bordered table-hover" id="unit_table">
                                 <thead class="table-light">
                                 <tr>
                                     <th style="width: 25%;">Đơn vị tính</th>
@@ -1208,288 +921,95 @@
                                     <th style="width: 10%;">Hành động</th>
                                 </tr>
                                 </thead>
-                                <tbody id="unit-table-body">
-                                <!-- Dữ liệu đơn vị tính sẽ được thêm động -->
+                                <tbody id="unit_table_body">
                                 </tbody>
                             </table>
                         </div>
-                        <h6 class="mt-3">Chi tiết sản phẩm</h6>
+
+                        <h6 class="mt-3">Chi tiết sách</h6>
                         <div class="mb-3">
-                            <label for="mota_chi_tiet" class="form-label">Mô tả chi tiết</label>
-                            <textarea class="form-control" id="mota_chi_tiet" rows="3"></textarea>
+                            <label for="tacpham" class="form-label">Tác phẩm</label>
+                            <textarea class="form-control" id="tacpham" rows="4" placeholder="Mô tả chi tiết về tác phẩm"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="thanhphan_chi_tiet" class="form-label">Thành phần chi tiết</label>
-                            <textarea class="form-control" id="thanhphan_chi_tiet" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cong_dung_chi_tiet" class="form-label">Công dụng chi tiết</label>
-                            <textarea class="form-control" id="cong_dung_chi_tiet" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cach_dung_chi_tiet" class="form-label">Cách dùng chi tiết</label>
-                            <textarea class="form-control" id="cach_dung_chi_tiet" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tac_dung_phu" class="form-label">Tác dụng phụ</label>
-                            <textarea class="form-control" id="tac_dung_phu" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="luu_y" class="form-label">Lưu ý</label>
-                            <textarea class="form-control" id="luu_y" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ban_quan" class="form-label">Bảo quản</label>
-                            <textarea class="form-control" id="ban_quan" rows="3"></textarea>
+                            <label for="tacgia" class="form-label">Thông tin tác giả</label>
+                            <textarea class="form-control" id="tacgia" rows="4" placeholder="Thông tin chi tiết về tác giả"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="saveProductBtn">Lưu</button>
+                    <button type="button" class="btn btn-primary" id="saveBookBtn">Lưu</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Chi tiết sản phẩm -->
-    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+    <!-- Modal Thêm danh mục mới -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productDetailModalLabel">Chi tiết sản phẩm</h5>
+                    <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="productDetailForm">
-                        <!-- Thông tin cơ bản -->
-                        <h6>Thông tin cơ bản</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_ten_san_pham" class="form-label fw-bold">Tên sản phẩm <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="detail_ten_san_pham" readonly required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_thuong_hieu" class="form-label fw-bold">Thương hiệu</label>
-                                <input type="text" class="form-control" id="detail_thuong_hieu" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_cong_dung" class="form-label fw-bold">Công dụng</label>
-                                <textarea class="form-control" id="detail_cong_dung" rows="2" readonly></textarea>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_doi_tuong" class="form-label fw-bold">Đối tượng sử dụng</label>
-                                <select class="form-select" id="detail_doi_tuong" disabled>
-                                    <option value="">Chọn đối tượng</option>
-                                    <!-- Danh sách đối tượng sẽ được load động -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_danh_muc" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
-                                <select class="form-select" id="detail_danh_muc" disabled required>
-                                    <option value="">Chọn danh mục</option>
-                                    <!-- Danh sách danh mục sẽ được load động -->
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_dang_bao_che" class="form-label fw-bold">Dạng bào chế</label>
-                                <input type="text" class="form-control" id="detail_dang_bao_che" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_quy_cach" class="form-label fw-bold">Quy cách</label>
-                                <input type="text" class="form-control" id="detail_quy_cach" readonly>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="detail_xuat_xu_thuong_hieu" class="form-label fw-bold">Xuất xứ thương hiệu</label>
-                                <input type="text" class="form-control" id="detail_xuat_xu_thuong_hieu" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="detail_nha_san_xuat" class="form-label fw-bold">Nhà sản xuất</label>
-                                <input type="text" class="form-control" id="detail_nha_san_xuat" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="detail_nuoc_san_xuat" class="form-label fw-bold">Nước sản xuất</label>
-                                <input type="text" class="form-control" id="detail_nuoc_san_xuat" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="detail_so_dang_ky" class="form-label fw-bold">Số đăng ký</label>
-                                <input type="text" class="form-control" id="detail_so_dang_ky" readonly>
-                            </div>
+                    <form id="addCategoryForm">
+                        <div class="mb-3">
+                            <label for="category_name" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="category_name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="detail_thanh_phan" class="form-label fw-bold">Thành phần</label>
-                            <textarea class="form-control" id="detail_thanh_phan" rows="2" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_mo_ta_ngan" class="form-label fw-bold">Mô tả ngắn</label>
-                            <textarea class="form-control" id="detail_mo_ta_ngan" rows="2" readonly></textarea>
-                        </div>
-
-                        <!-- Hình ảnh sản phẩm -->
-                        <h6>Hình ảnh sản phẩm</h6>
-                        <div class="image-input-section mb-4 p-3 border rounded bg-light">
-                            <div class="row align-items-end">
-                                <div class="col-md-5 mb-3">
-                                    <label class="form-label">URL ảnh</label>
-                                    <input type="text" class="form-control" id="detail_image_url" placeholder="Nhập URL ảnh" disabled>
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label">Ảnh chính</label>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="detail_image_is_main" disabled>
-                                        <label class="form-check-label" for="detail_image_is_main">Chọn làm ảnh chính</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label">Thứ tự</label>
-                                    <input type="number" class="form-control" id="detail_image_order" value="0" min="0" disabled>
-                                </div>
-                                <div class="col-md-3 mb-3 text-end">
-                                    <button type="button" class="btn btn-primary" id="add_detail_image" disabled><i class="fas fa-plus"></i> Thêm ảnh</button>
-                                </div>
-                            </div>
-                            <div class="image-preview mt-3" id="detail_image_preview" style="display: none;">
-                                <img id="detail_preview_image" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
-                            </div>
-                        </div>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered table-hover" id="detail_image_table">
-                                <thead class="table-light">
-                                <tr>
-                                    <th style="width: 40%;">URL ảnh</th>
-                                    <th style="width: 15%;">Ảnh chính</th>
-                                    <th style="width: 15%;">Thứ tự</th>
-                                    <th style="width: 20%;">Xem trước</th>
-                                    <th style="width: 10%;">Hành động</th>
-                                </tr>
-                                </thead>
-                                <tbody id="detail_image_table_body">
-                                <!-- Dữ liệu ảnh sẽ được thêm động -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Đơn vị tính -->
-                        <h6>Đơn vị tính</h6>
-                        <div class="unit-input-section mb-4 p-3 border rounded bg-light">
-                            <div class="row align-items-end">
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">Đơn vị tính</label>
-                                    <select class="form-select" id="detail_unit_name" disabled>
-                                        <option value="">Chọn đơn vị tính</option>
-                                        <!-- Danh sách sẽ được tải động -->
-                                    </select>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">Giá (VNĐ)</label>
-                                    <input type="number" class="form-control" id="detail_unit_price" min="0" placeholder="Nhập giá" disabled>
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label">Giảm giá (%)</label>
-                                    <input type="number" class="form-control" id="detail_unit_discount" value="0" min="0" max="100" disabled>
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label">Ghi chú</label>
-                                    <input type="text" class="form-control" id="detail_unit_note" placeholder="Ghi chú" disabled>
-                                </div>
-                                <div class="col-md-2 mb-3 text-end">
-                                    <button type="button" class="btn btn-primary" id="add_detail_unit" disabled><i class="fas fa-plus"></i> Thêm đơn vị</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered table-hover" id="detail_unit_table">
-                                <thead class="table-light">
-                                <tr>
-                                    <th style="width: 25%;">Đơn vị tính</th>
-                                    <th style="width: 20%;">Giá (VNĐ)</th>
-                                    <th style="width: 20%;">Giảm giá (%)</th>
-                                    <th style="width: 25%;">Ghi chú</th>
-                                    <th style="width: 10%;">Hành động</th>
-                                </tr>
-                                </thead>
-                                <tbody id="detail_unit_table_body">
-                                <!-- Dữ liệu đơn vị tính sẽ được thêm động -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Chi tiết sản phẩm -->
-                        <h6>Chi tiết sản phẩm</h6>
-                        <div class="mb-3">
-                            <label for="detail_mota_chi_tiet" class="form-label fw-bold">Mô tả chi tiết</label>
-                            <textarea class="form-control" id="detail_mota_chi_tiet" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_thanhphan_chi_tiet" class="form-label fw-bold">Thành phần chi tiết</label>
-                            <textarea class="form-control" id="detail_thanhphan_chi_tiet" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_cong_dung_chi_tiet" class="form-label fw-bold">Công dụng chi tiết</label>
-                            <textarea class="form-control" id="detail_cong_dung_chi_tiet" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_cach_dung_chi_tiet" class="form-label fw-bold">Cách dùng chi tiết</label>
-                            <textarea class="form-control" id="detail_cach_dung_chi_tiet" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_tac_dung_phu" class="form-label fw-bold">Tác dụng phụ</label>
-                            <textarea class="form-control" id="detail_tac_dung_phu" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_luu_y" class="form-label fw-bold">Lưu ý</label>
-                            <textarea class="form-control" id="detail_luu_y" rows="3" readonly></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="detail_ban_quan" class="form-label fw-bold">Bảo quản</label>
-                            <textarea class="form-control" id="detail_ban_quan" rows="3" readonly></textarea>
-                        </div>
-
-                        <!-- Tình trạng kho -->
-                        <h6>Tình trạng kho</h6>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered table-hover" id="detail_inventory_table">
-                                <thead class="table-light">
-                                <tr>
-                                    <th style="width: 20%;">Kho</th>
-                                    <th style="width: 20%;">Số lô</th>
-                                    <th style="width: 15%;">Số lượng</th>
-                                    <th style="width: 20%;">Ngày sản xuất</th>
-                                    <th style="width: 20%;">Hạn sử dụng</th>
-                                    <th style="width: 15%;">Trạng thái</th>
-                                </tr>
-                                </thead>
-                                <tbody id="detail_inventory_table_body">
-                                <!-- Dữ liệu kho sẽ được thêm động -->
-                                </tbody>
-                            </table>
+                            <label for="category_note" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="category_note" rows="3"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-warning" id="editProductBtn">Chỉnh sửa</button>
-                    <button type="button" class="btn btn-primary" id="saveProduc" style="display: none;">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-primary" id="saveCategory">Lưu</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-
-
-    <!-- Modal Sửa sản phẩm -->
-    <!-- Modal Thêm người dùng -->
-    <!-- Modal Sửa người dùng -->
-    <!-- Modal Thêm danh mục mới -->
+    <!-- Modal Thêm đối tượng sử dụng -->
+    <div class="modal fade" id="addDoiTuongModal" tabindex="-1" aria-labelledby="addDoiTuongModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDoiTuongModalLabel">Thêm đối tượng sử dụng mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDoiTuongForm">
+                        <div class="mb-3">
+                            <label for="doi_tuong_name" class="form-label">Tên đối tượng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="doi_tuong_name" required placeholder="VD: Người lớn, Trẻ em">
+                        </div>
+                        <div class="mb-3">
+                            <label for="doi_tuong_image_max" class="form-label">Ảnh lớn <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="doi_tuong_image_max" required placeholder="Nhập URL ảnh lớn">
+                            <img id="preview_image_max" src="#" alt="Preview" style="display: none; max-width: 100%; margin-top: 10px;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="doi_tuong_image_min" class="form-label">Ảnh nhỏ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="doi_tuong_image_min" required placeholder="Nhập URL ảnh nhỏ">
+                            <img id="preview_image_min" src="#" alt="Preview" style="display: none; max-width: 100%; margin-top: 10px;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="doi_tuong_note" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="doi_tuong_note" rows="3" placeholder="Ghi chú về đối tượng"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveDoiTuong">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Thêm đơn vị tính mới -->
     <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
@@ -1515,85 +1035,18 @@
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addCategoryForm">
-                        <div class="mb-3">
-                            <label for="category_name" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="category_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="category_note" class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="category_note" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary">Lưu</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Thêm đối tượng sử dụng -->
-    <div class="modal fade" id="addDoiTuongModal" tabindex="-1" aria-labelledby="addDoiTuongModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addDoiTuongModalLabel">Thêm đối tượng sử dụng mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addDoiTuongForm" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="doi_tuong_name" class="form-label">Tên đối tượng <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="doi_tuong_name" required placeholder="VD: Người lớn, Trẻ em">
-                        </div>
-                        <div class="mb-3">
-                            <label for="doi_tuong_image_max" class="form-label">Ảnh lớn <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="doi_tuong_image_max" accept="image/*" required>
-                            <img id="preview_image_max" src="#" alt="Preview" style="display: none; max-width: 100%; margin-top: 10px;">
-                        </div>
-                        <div class="mb-3">
-                            <label for="doi_tuong_image_min" class="form-label">Ảnh nhỏ <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="doi_tuong_image_min" accept="image/*" required>
-                            <img id="preview_image_min" src="#" alt="Preview" style="display: none; max-width: 100%; margin-top: 10px;">
-                        </div>
-                        <div class="mb-3">
-                            <label for="doi_tuong_note" class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="doi_tuong_note" rows="3" placeholder="Ghi chú về đối tượng"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="saveDoiTuong">Lưu</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
-<script src="js/utils.js" defer></script>
-<script src="js/sidebar.js" defer></script>
-<script src="js/products.js" defer></script>
-<script src="js/inventory.js" defer></script>
-<script src="js/users.js" defer></script>
-<script src="js/orders.js" defer></script>
-<script src="js/dashboard.js" defer></script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/book.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/sidebar.js"></script>
+<script src="/js/inventory.js"></script>
+<script src="/js/users.js"></script>
+<script src="/js/orders.js"></script>
+<script src="/js/dashboard.js"></script>
 
 </body>
 </html>

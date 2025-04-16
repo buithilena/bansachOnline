@@ -1,9 +1,8 @@
 package com.suki.bansachOnline.controller;
 
-import com.suki.bansachOnline.model.Book;
-import com.suki.bansachOnline.model.DoiTuong;
-import com.suki.bansachOnline.model.User;
+import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.service.BookService;
+import com.suki.bansachOnline.service.GioHangService;
 import com.suki.bansachOnline.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +29,9 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private GioHangService gioHangService; // Thêm GioHangService
+
     @GetMapping("/")
     public String home(Model model,
                        @RequestParam(defaultValue = "0") int page,
@@ -49,11 +51,19 @@ public class HomeController {
             }
         }
 
+        // Khởi tạo hoặc lấy giỏ hàng
+        Cart cart = gioHangService.getOrCreateCart(loggedInUser, session);
+        List<CartItem> cartItems = gioHangService.getCartItems(loggedInUser, session);
+        int cartItemCount = gioHangService.getCartItemCount(cart);
+
+        // Thêm thông tin giỏ hàng vào model để sử dụng trong header
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("cartItemCount", cartItemCount);
+
         // Logic sách và đối tượng
         Pageable pageable = PageRequest.of(page, 12); // Hiển thị 12 sách mỗi trang
         Page<Book> bookPage = bookService.getBooks(pageable);
         List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
-
 
         model.addAttribute("books", bookPage.getContent());
         model.addAttribute("totalPages", bookPage.getTotalPages());
@@ -78,6 +88,15 @@ public class HomeController {
                     return "redirect:/"; // Nếu không phải ADMIN, chuyển về trang chủ
                 }
                 model.addAttribute("loggedInUser", user);
+
+                // Khởi tạo hoặc lấy giỏ hàng
+                Cart cart = gioHangService.getOrCreateCart(user, session);
+                List<CartItem> cartItems = gioHangService.getCartItems(user, session);
+                int cartItemCount = gioHangService.getCartItemCount(cart);
+
+                // Thêm thông tin giỏ hàng vào model
+                model.addAttribute("cartItems", cartItems);
+                model.addAttribute("cartItemCount", cartItemCount);
 
                 // Logic sách và đối tượng
                 Pageable pageable = PageRequest.of(page, 12); // Hiển thị 12 sách mỗi trang

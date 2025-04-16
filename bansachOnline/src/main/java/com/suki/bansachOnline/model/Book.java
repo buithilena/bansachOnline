@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -66,7 +67,6 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookImage> bookImages;
 
-    // Phương thức hỗ trợ
     public boolean hasDiscount() {
         return donViGias != null && !donViGias.isEmpty() && donViGias.get(0).getDiscount() > 0;
     }
@@ -75,19 +75,22 @@ public class Book {
         return donViGias != null && !donViGias.isEmpty() ? donViGias.get(0) : null;
     }
 
-
-
     public String getMainImageUrl() {
         return bookImages != null && !bookImages.isEmpty() ?
                 bookImages.stream().filter(BookImage::getIsMain).findFirst().map(BookImage::getImageUrl).orElse("/images/placeholder.png")
                 : "/images/placeholder.png";
     }
-    public double getDiscountedPrice() {
+
+    public BigDecimal getDiscountedPrice() {
         DonViGia defaultDvt = getDefaultDonViTinh();
-        if (defaultDvt != null && defaultDvt.getDiscount() > 0) {
-            // Tính giá sau khi giảm dựa trên phần trăm
-            return defaultDvt.getGia() * (1 - defaultDvt.getDiscount() / 100.0);
+        if (defaultDvt == null) {
+            return BigDecimal.ZERO;
         }
-        return defaultDvt != null ? defaultDvt.getGia() : 0;
+        BigDecimal basePrice = BigDecimal.valueOf(defaultDvt.getGia());
+        double discount = defaultDvt.getDiscount();
+        if (discount > 0) {
+            return basePrice.multiply(BigDecimal.valueOf(1 - discount / 100));
+        }
+        return basePrice;
     }
 }

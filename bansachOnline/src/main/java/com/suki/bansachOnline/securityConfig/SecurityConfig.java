@@ -33,11 +33,11 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/dangkyaccount", "/register", "/save-profile", "/update-price", "/api/quanly/**", "/products", "/inventory-by-product/{productId}", "/","/giohang","/book/**",
-                                "/image/**", "/css/**", "/js/**", "/logonewT.png", "/sanpham", "/product-images/**", "/cart/**", "/products-by-doituong", "/quanly", "/api/login").permitAll() // Thêm /api/login
+                                "/image/**", "/css/**", "/js/**", "/logonewT.png", "/sanpham", "/product-images/**", "/cart/**", "/products-by-doituong", "/quanly", "/api/login", "/api/quanly/**").permitAll() // Thêm /api/login
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login") // Bỏ CSRF cho /api/login
+                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login", "/cart/**") // Bỏ CSRF cho /api/login
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo

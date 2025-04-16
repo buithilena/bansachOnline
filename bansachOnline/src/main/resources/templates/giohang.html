@@ -4,16 +4,656 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giỏ hàng</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="" th:href="@{/css/giohang.css}">
+    <link rel="stylesheet" th:href="@{/css/giohang.css}">
     <link rel="icon" type="image/png" th:href="@{/logonewT.png}">
+ <style>
 
-</head>
+     /* Giữ nguyên các kiểu không liên quan */
+     body {
+         background-color: #f0f4f8;
+         font-family: 'Segoe UI', Arial, sans-serif;
+         color: #333;
+     }
+
+     .cart-container {
+         background-color: #fff;
+         border-radius: 8px;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+         padding: 20px;
+         margin-top: 20px;
+         margin-bottom: 20px;
+     }
+
+     /* Giới hạn phạm vi cho các phần tử trong giỏ hàng */
+     #cart-content .cart-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-bottom: 15px;
+     }
+
+     #cart-content .cart-header h3 {
+         font-weight: 600;
+         color: #333;
+         font-size: 1.25rem;
+         margin: 0;
+     }
+
+     #cart-content .cart-header .clear-cart {
+         color: #dc3545;
+         text-decoration: none;
+         font-size: 0.85rem;
+         transition: color 0.2s ease;
+     }
+
+     #cart-content .cart-header .clear-cart:hover {
+         color: #c82333;
+     }
+
+     #cart-content .cart-item {
+         display: flex;
+         align-items: center;
+         padding: 15px 0;
+         border-bottom: 3px solid #d3d6da;
+     }
+
+     #cart-content .cart-item:last-child {
+         border-bottom: none;
+     }
+
+     #cart-content .cart-item-left {
+         display: flex;
+         align-items: center;
+         flex: 1;
+     }
+
+     #cart-content .cart-item-right {
+         display: flex;
+         flex-direction: column;
+         align-items: flex-start;
+         justify-content: center;
+         min-width: 120px;
+         margin-left: 15px;
+     }
+
+     /* Chỉ áp dụng cho hình ảnh trong giohang.html */
+     #cart-content .cart-item img {
+         width: 92px;
+         height: 92px;
+         object-fit: cover;
+         border-radius: 8px;
+         margin-right: 15px;
+         border: 2px solid #d3d6da;
+         padding: 2px;
+     }
+
+     #cart-content .cart-item-details {
+         flex-grow: 1;
+         display: flex;
+         flex-direction: column;
+         gap: 5px;
+     }
+
+     #cart-content .cart-item-details h6 {
+         font-size: 1rem;
+         font-weight: 500;
+         color: #333;
+         margin: 0;
+     }
+
+     #cart-content .cart-item-details .discount-info {
+         font-size: 0.8rem;
+         color: #28a745;
+         margin-top: 5px;
+     }
+
+     #cart-content .cart-item-price {
+         font-size: 1rem;
+         color: #dc3545;
+         font-weight: 600;
+         text-align: left;
+     }
+
+     #cart-content .unit-price {
+         font-size: 0.9rem;
+         color: #333;
+         font-weight: 600;
+         text-align: left;
+         margin-bottom: 5px;
+     }
+
+     #cart-content .quantity-selector {
+         display: flex;
+         align-items: center;
+         border: 1px solid #ced4da;
+         border-radius: 4px;
+         width: 100px;
+         height: 30px;
+         justify-content: space-between;
+         overflow: hidden;
+         margin-right: 10px;
+     }
+
+     #cart-content .quantity-selector button {
+         background: none;
+         border: none;
+         padding: 0 10px;
+         cursor: pointer;
+         font-size: 1rem;
+         color: #333;
+         height: 100%;
+         display: flex;
+         justify-content: center;
+         transition: background-color 0.2s ease;
+     }
+
+     #cart-content .quantity-selector button:hover {
+         background-color: #e9ecef;
+     }
+
+     #cart-content .quantity-selector input {
+         width: 30px;
+         text-align: center;
+         border: none;
+         outline: none;
+         background: none;
+         font-size: 0.9rem;
+         color: #333;
+         height: 100%;
+         padding: 0;
+     }
+
+     #cart-content .unit-selector {
+         height: 30px;
+         font-size: 0.85rem;
+         border-radius: 4px;
+         border: 1px solid #ced4da;
+         padding: 0 5px;
+         margin-right: 10px;
+     }
+
+     #cart-content .cart-item-actions {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+     }
+
+     #cart-content .btn-remove {
+         color: #6c757d;
+         border: none;
+         background: none;
+         font-size: 1.2rem;
+         transition: color 0.2s ease;
+     }
+
+     #cart-content .btn-remove:hover {
+         color: #dc3545;
+     }
+
+     #cart-content .cart-summary {
+         padding: 15px;
+         background-color: #f8f9fa;
+         border-radius: 8px;
+         margin-top: 20px;
+     }
+
+     #cart-content .cart-summary h5 {
+         font-weight: 600;
+         color: #333;
+         font-size: 1.1rem;
+         margin-bottom: 10px;
+     }
+
+     #cart-content .cart-summary .total-label {
+         font-size: 0.9rem;
+         color: #495057;
+     }
+
+     #cart-content .cart-summary .total {
+         font-size: 1.2rem;
+         font-weight: 700;
+     }
+
+     #cart-content .btn-checkout {
+         background-color: #1a73e8;
+         border-color: #1a73e8;
+         border-radius: 4px;
+         padding: 8px 20px;
+         font-size: 1rem;
+         font-weight: 500;
+         transition: all 0.3s ease;
+         width: 100%;
+     }
+
+     #cart-content .btn-checkout:hover {
+         background-color: #0056b3;
+         border-color: #0056b3;
+     }
+
+     #cart-content .empty-cart {
+         text-align: center;
+         padding: 50px 20px;
+         background-color: #fff;
+         border-radius: 8px;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+         margin-top: 20px;
+         margin-bottom: 20px;
+     }
+
+     #cart-content .empty-cart i {
+         font-size: 3rem;
+         color: #6c757d;
+         margin-bottom: 15px;
+     }
+
+     #cart-content .empty-cart h4 {
+         font-size: 1.3rem;
+         font-weight: 500;
+         color: #333;
+         margin-bottom: 10px;
+     }
+
+     #cart-content .empty-cart p {
+         font-size: 0.9rem;
+         color: #6c757d;
+         margin-bottom: 20px;
+     }
+
+     #cart-content .empty-cart .btn-primary {
+         background-color: #1a73e8;
+         border-color: #1a73e8;
+         border-radius: 4px;
+         padding: 8px 20px;
+         font-size: 0.9rem;
+         font-weight: 500;
+         transition: all 0.3s ease;
+     }
+
+     #cart-content .empty-cart .btn-primary:hover {
+         background-color: #0056b3;
+         border-color: #0056b3;
+     }
+
+     #cart-content .item-divider {
+         border: 0;
+         border-top: 4px solid #d3d6da;
+         margin: 0;
+     }
+
+     /* CSS cho Modal */
+     #cart-content .modal-dialog {
+         max-height: 90vh;
+         display: flex;
+         flex-direction: column;
+     }
+
+     #cart-content .modal-content {
+         border-radius: 12px;
+         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+         border: none;
+         display: flex;
+         flex-direction: column;
+         height: 100%;
+     }
+
+     #cart-content .modal-header {
+         background: linear-gradient(90deg, #1a73e8, #4a90e2);
+         color: #fff;
+         border-top-left-radius: 12px;
+         border-top-right-radius: 12px;
+         padding: 15px 20px;
+     }
+
+     #cart-content .modal-title {
+         font-weight: 600;
+         font-size: 1.25rem;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+     }
+
+     #cart-content .modal-title i {
+         font-size: 1.2rem;
+     }
+
+     #cart-content .modal-body {
+         padding: 25px;
+         background-color: #f8f9fa;
+         flex: 1 1 auto;
+         overflow-y: auto;
+         max-height: calc(90vh - 120px);
+     }
+
+     #cart-content .modal-section {
+         background-color: #fff;
+         border-radius: 8px;
+         padding: 15px;
+         margin-bottom: 20px;
+         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+     }
+
+     #cart-content .modal-section h6 {
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 15px;
+         font-size: 1.1rem;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+     }
+
+     #cart-content .modal-section h6 i {
+         color: #1a73e8;
+         font-size: 1.2rem;
+     }
+
+     #cart-content .order-item {
+         display: flex;
+         align-items: center;
+         padding: 12px 0;
+         border-bottom: 1px solid #e9ecef;
+     }
+
+     #cart-content .order-item:last-child {
+         border-bottom: none;
+     }
+
+     /* Chỉ áp dụng cho hình ảnh trong modal của giohang.html */
+     #cart-content .order-item img {
+         width: 50px;
+         height: 50px;
+         object-fit: cover;
+         border-radius: 6px;
+         margin-right: 15px;
+         border: 1px solid #d3d6da;
+     }
+
+     #cart-content .order-item-details {
+         flex: 1;
+     }
+
+     #cart-content .order-item-details p {
+         margin: 0;
+         font-size: 0.9rem;
+         color: #495057;
+     }
+
+     #cart-content .order-item-details p strong {
+         font-size: 0.95rem;
+         color: #333;
+     }
+
+     #cart-content .order-item-price {
+         font-weight: 600;
+         color: #dc3545;
+         font-size: 0.95rem;
+         min-width: 100px;
+         text-align: right;
+     }
+
+     #cart-content .summary-row {
+         display: flex;
+         justify-content: space-between;
+         margin-bottom: 8px;
+         font-size: 0.9rem;
+         color: #495057;
+     }
+
+     #cart-content .summary-row.total {
+         font-weight: 700;
+         font-size: 1.1rem;
+         color: #dc3545;
+         border-top: 1px solid #e9ecef;
+         padding-top: 10px;
+         margin-top: 10px;
+     }
+
+     #cart-content .order-summary-divider {
+         border: 0;
+         border-top: 1px solid #e9ecef;
+         margin: 15px 0;
+     }
+
+     #cart-content .form-group {
+         margin-bottom: 20px;
+         position: relative;
+     }
+
+     #cart-content .form-group label {
+         font-weight: 500;
+         color: #333;
+         margin-bottom: 6px;
+         font-size: 0.95rem;
+         display: block;
+     }
+
+     #cart-content .form-group input,
+     #cart-content .form-group select {
+         width: 100%;
+         padding: 10px 12px;
+         border: 1px solid #ced4da;
+         border-radius: 6px;
+         font-size: 0.9rem;
+         transition: border-color 0.2s ease, box-shadow 0.2s ease;
+     }
+
+     #cart-content .form-group input:focus,
+     #cart-content .form-group select:focus {
+         outline: none;
+         border-color: #1a73e8;
+         box-shadow: 0 0 6px rgba(26, 115, 232, 0.2);
+     }
+
+     #cart-content .form-group .error-message {
+         color: #dc3545;
+         font-size: 0.8rem;
+         margin-top: 5px;
+         display: none;
+     }
+
+     #cart-content .form-group.invalid .error-message {
+         display: block;
+     }
+
+     #cart-content .form-group.invalid input,
+     #cart-content .form-group.invalid select {
+         border-color: #dc3545;
+     }
+
+     #cart-content .modal-footer {
+         position: sticky;
+         bottom: 0;
+         z-index: 10;
+         background-color: #fff;
+         padding: 15px 20px;
+         border-top: 1px solid #e9ecef;
+         border-bottom-left-radius: 12px;
+         border-bottom-right-radius: 12px;
+     }
+
+     #cart-content .btn-confirm {
+         background-color: #1a73e8;
+         border-color: #1a73e8;
+         padding: 10px 25px;
+         font-weight: 500;
+         border-radius: 6px;
+         transition: background-color 0.2s ease;
+     }
+
+     #cart-content .btn-confirm:hover {
+         background-color: #0056b3;
+         border-color: #0056b3;
+     }
+
+     #cart-content .btn-cancel {
+         background-color: #6c757d;
+         border-color: #6c757d;
+         padding: 10px 25px;
+         font-weight: 500;
+         border-radius: 6px;
+         transition: background-color 0.2s ease;
+     }
+
+     #cart-content .btn-cancel:hover {
+         background-color: #5a6268;
+         border-color: #5a6268;
+     }
+
+     /* CSS cho Modal chuyển khoản ngân hàng */
+     #cart-content #bankTransferModal .modal-header {
+         background: linear-gradient(90deg, #1a73e8, #4a90e2);
+         color: #fff;
+         border-top-left-radius: 12px;
+         border-top-right-radius: 12px;
+         padding: 15px 20px;
+     }
+
+     #cart-content #bankTransferModal .modal-body {
+         padding: 20px;
+         background-color: #f8f9fa;
+     }
+
+     #cart-content #bankTransferModal .modal-body ul {
+         margin-bottom: 20px;
+     }
+
+     #cart-content #bankTransferModal .modal-body ul li {
+         margin-bottom: 8px;
+         font-size: 0.95rem;
+     }
+
+     #cart-content #bankTransferModal .modal-footer {
+         position: sticky;
+         bottom: 0;
+         background-color: #fff;
+         padding: 15px 20px;
+         border-top: 1px solid #e9ecef;
+         border-bottom-left-radius: 12px;
+         border-bottom-right-radius: 12px;
+     }
+
+     /* Responsive */
+     @media (max-width: 768px) {
+         #cart-content .cart-item {
+             flex-direction: column;
+             align-items: flex-start;
+             padding: 10px 0;
+         }
+
+         #cart-content .cart-item-left {
+             width: 100%;
+         }
+
+         #cart-content .cart-item-right {
+             width: 100%;
+             align-items: flex-start;
+             margin-top: 10px;
+             margin-left: 0;
+         }
+
+         #cart-content .cart-item img {
+             width: 72px;
+             height: 72px;
+             margin-right: 10px;
+             border: 2px solid #d3d6da;
+             padding: 2px;
+             border-radius: 8px;
+         }
+
+         #cart-content .cart-item-details {
+             width: 100%;
+         }
+
+         #cart-content .cart-item-price,
+         #cart-content .unit-price {
+             text-align: left;
+         }
+
+         #cart-content .quantity-selector {
+             width: 90px;
+             height: 28px;
+         }
+
+         #cart-content .quantity-selector button {
+             padding: 0 8px;
+             font-size: 0.9rem;
+         }
+
+         #cart-content .quantity-selector input {
+             width: 25px;
+             font-size: 0.9rem;
+         }
+
+         #cart-content .unit-selector {
+             height: 28px;
+             font-size: 0.8rem;
+         }
+
+         #cart-content .cart-header {
+             flex-direction: column;
+             align-items: flex-start;
+         }
+
+         #cart-content .cart-header .clear-cart {
+             margin-top: 10px;
+         }
+
+         #cart-content .empty-cart {
+             padding: 40px 15px;
+         }
+
+         #cart-content .empty-cart i {
+             font-size: 2.5rem;
+         }
+
+         #cart-content .empty-cart h4 {
+             font-size: 1.2rem;
+         }
+
+         #cart-content .modal-dialog {
+             margin: 10px;
+         }
+
+         #cart-content .modal-body {
+             padding: 15px;
+         }
+
+         #cart-content .modal-section {
+             padding: 10px;
+         }
+
+         #cart-content .order-item img {
+             width: 40px;
+             height: 40px;
+         }
+
+         #cart-content .order-item-details p {
+             font-size: 0.85rem;
+         }
+
+         #cart-content .order-item-price {
+             font-size: 0.9rem;
+         }
+
+         #cart-content .modal-footer {
+             flex-direction: column;
+             gap: 10px;
+         }
+
+         #cart-content .modal-footer .btn {
+             width: 100%;
+         }
+     }
+
+ </style></head>
 <body>
-<div th:replace="~{part/header :: header}"></div>
-<div th:replace="~{part/dropdowns :: dropdowns}"></div>
+<div th:replace="~{giaodien/header :: header}"></div>
+<div th:replace="~{giaodien/dropdowns :: dropdowns}"></div>
 
 <main>
     <div class="container mt-4">
@@ -41,40 +681,38 @@
                         <div th:each="item, iterStat : ${cartItems}">
                             <div class="cart-item">
                                 <div class="cart-item-left">
-                                    <input type="checkbox" th:id="'item-checkbox-' + ${item.id}" th:data-product-id="${item.product.id}" th:data-unit-id="${item.donViTinh?.id}" checked>
-                                    <img th:src="${item.product.mainImageUrl != null ? item.product.mainImageUrl : '/images/placeholder.png'}" alt="Product Image" style="margin-left: 20px">
+                                    <input type="checkbox" th:id="'item-checkbox-' + ${item.id}" th:data-product-id="${item.book.id}" th:data-unit-id="${item.donViGia?.id}" checked>
+                                    <img th:src="${item.book.mainImageUrl != null ? item.book.mainImageUrl : '/images/placeholder.png'}" alt="Book Image" style="margin-left: 20px">
                                     <div class="cart-item-details">
-                                        <h6 th:text="${item.product.tenSanPham} ?: 'Sản phẩm không xác định'"></h6>
+                                        <h6 th:text="${item.book.tenSach} ?: 'Sản phẩm không xác định'"></h6>
                                         <div class="cart-item-actions d-flex align-items-center gap-2">
                                             <div class="quantity-selector">
-                                                <button th:onclick="'decreaseQuantity(' + ${item.product.id} + ',' + ${item.donViTinh?.id} + ')'">−</button>
-                                                <input type="text" th:id="'quantity-' + ${item.product.id} + '-' + ${item.donViTinh?.id}" th:value="${item.quantity}" readonly>
-                                                <button th:onclick="'increaseQuantity(' + ${item.product.id} + ',' + ${item.donViTinh?.id} + ')'">+</button>
+                                                <button th:onclick="'decreaseQuantity(' + ${item.book.id} + ',' + ${item.donViGia?.id} + ')'">−</button>
+                                                <input type="text" th:id="'quantity-' + ${item.book.id} + '-' + ${item.donViGia?.id}" th:value="${item.quantity}" readonly>
+                                                <button th:onclick="'increaseQuantity(' + ${item.book.id} + ',' + ${item.donViGia?.id} + ')'">+</button>
                                             </div>
-                                            <select class="unit-selector" th:id="'unit-' + ${item.product.id} + '-' + ${item.donViTinh?.id}">
-                                                <option th:value="${item.donViTinh?.id}" th:text="${item.donViTinh?.donViTinh} ?: 'N/A'" selected></option>
+                                            <select class="unit-selector" th:id="'unit-' + ${item.book.id} + '-' + ${item.donViGia?.id}">
+                                                <option th:value="${item.donViGia?.id}" th:text="${item.donViGia?.donVi} ?: 'N/A'" selected></option>
                                                 <!-- Thêm các tùy chọn khác nếu cần -->
                                             </select>
                                             <button class="btn-remove" th:onclick="'removeItem(' + ${item.id} + ')'">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
-                                        <p class="discount-info" th:if="${item.donViTinh?.discount != null}">
-                                            Giảm ngay <span th:text="${item.donViTinh.discount} + '%'"></span>, áp dụng đến 30/04
+                                        <p class="discount-info" th:if="${item.donViGia?.discount != null and item.donViGia.discount > 0}">
+                                            Giảm ngay <span th:text="${item.donViGia.discount} + '%'"></span>, áp dụng đến 30/04
                                         </p>
                                     </div>
                                 </div>
                                 <div class="cart-item-right">
-                                    <p class="unit-price mb-0" th:id="'unit-price-' + ${item.product.id} + '-' + ${item.donViTinh?.id}"
-                                       th:text="${item.price}"></p>
-                                    <div class="cart-item-price" th:id="'price-' + ${item.product.id} + '-' + ${item.donViTinh?.id}"
-                                         th:text="${item.itemTotalPrice}"></div>
+                                    <p class="unit-price mb-0" th:id="'unit-price-' + ${item.book.id} + '-' + ${item.donViGia?.id}" th:text="${#numbers.formatDecimal(item.price, 0, 0)} + 'đ'"></p>
+                                    <div class="cart-item-price" th:id="'price-' + ${item.book.id} + '-' + ${item.donViGia?.id}" th:text="${#numbers.formatDecimal(item.itemTotalPrice, 0, 0)} + 'đ'"></div>
                                 </div>
                             </div>
                             <hr class="item-divider" th:unless="${iterStat.last}"/>
                         </div>
 
-                        <!-- Thêm thông báo lỗi nếu có -->
+                        <!-- Thông báo lỗi nếu có -->
                         <div th:if="${error != null}" class="alert alert-danger mt-3" th:text="${error}"></div>
                     </div>
 
@@ -84,23 +722,23 @@
                             <h5>Tổng cộng</h5>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="total-label">Tổng tiền:</span>
-                                <span class="total" id="cart-total" th:text="${cartTotal}"></span>
+                                <span class="total" id="cart-total" th:text="${#numbers.formatDecimal(cartTotal, 0, 0)} + 'đ'"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="total-label">Giảm giá trực tiếp:</span>
-                                <span class="total" id="direct-discount" style="color: #f7941d;" th:text="${directDiscount}"></span>
+                                <span class="total" id="direct-discount" style="color: #f7941d;" th:text="'-' + ${#numbers.formatDecimal(directDiscount, 0, 0)} + 'đ'"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="total-label">Giảm giá voucher:</span>
-                                <span class="total" id="voucher-discount" style="color: #f7941d;" th:text="${voucherDiscount}"></span>
+                                <span class="total" id="voucher-discount" style="color: #f7941d;" th:text="'-' + ${#numbers.formatDecimal(voucherDiscount, 0, 0)} + 'đ'"></span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="total-label">Tiết kiệm được:</span>
-                                <span class="total" id="total-savings" style="color: #f7941d;" th:text="${totalSavings}"></span>
+                                <span class="total" id="total-savings" style="color: #f7941d;" th:text="${#numbers.formatDecimal(totalSavings, 0, 0)} + 'đ'"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="total-label">Thanh toán:</span>
-                                <span class="total" id="final-total" th:text="${finalTotal}"></span>
+                                <span class="total" id="final-total" th:text="${#numbers.formatDecimal(finalTotal, 0, 0)} + 'đ'"></span>
                             </div>
                             <div>
                                 <button class="btn btn-checkout" data-bs-toggle="modal" data-bs-target="#checkoutModal">Mua hàng</button>
@@ -207,7 +845,7 @@
     </div>
 </main>
 
-<div th:replace="~{part/footer :: footer}"></div>
+<div th:replace="~{giaodien/footer :: footer}"></div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script th:inline="javascript">
@@ -219,12 +857,13 @@
         return parseFloat(price).toLocaleString('vi-VN') + 'đ';
     }
 
-    function updatePrice(productId, donViTinhId, quantity) {
-        let unitPriceText = $('#unit-price-' + productId + '-' + donViTinhId).text().replace(/[^0-9]/g, '');
+    // Cập nhật giá sản phẩm
+    function updatePrice(bookId, donViGiaId, quantity) {
+        let unitPriceText = $('#unit-price-' + bookId + '-' + donViGiaId).text().replace(/[^0-9]/g, '');
         let unitPrice = parseFloat(unitPriceText);
 
         let totalPrice = unitPrice * quantity;
-        $('#price-' + productId + '-' + donViTinhId).text(formatPrice(totalPrice));
+        $('#price-' + bookId + '-' + donViGiaId).text(formatPrice(totalPrice));
 
         updateCartSummary();
         updateCheckoutModal();
@@ -232,14 +871,17 @@
         $.ajax({
             url: '/cart/update-quantity',
             type: 'POST',
-            data: { productId: productId, donViTinhId: donViTinhId, quantity: quantity },
+            headers: {
+                [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+            },
+            data: { productId: bookId, donViTinhId: donViGiaId, quantity: quantity },
             success: function(response) {
                 if (response.success) {
                     let unitPrice = response.price;
-                    $('#unit-price-' + productId + '-' + donViTinhId).text(formatPrice(unitPrice));
+                    $('#unit-price-' + bookId + '-' + donViGiaId).text(formatPrice(unitPrice));
 
                     let totalPrice = unitPrice * quantity;
-                    $('#price-' + productId + '-' + donViTinhId).text(formatPrice(totalPrice));
+                    $('#price-' + bookId + '-' + donViGiaId).text(formatPrice(totalPrice));
 
                     updateCartSummary();
                     updateCheckoutModal();
@@ -251,6 +893,7 @@
         });
     }
 
+    // Cập nhật tổng giỏ hàng
     function updateCartSummary() {
         let total = 0;
         let directDiscount = 0;
@@ -258,12 +901,10 @@
 
         $('input[id^="item-checkbox-"]').each(function() {
             if ($(this).is(':checked')) {
-                let productId = $(this).data('product-id');
+                let bookId = $(this).data('product-id');
                 let unitId = $(this).data('unit-id');
-                let quantity = parseInt($('#quantity-' + productId + '-' + unitId).val());
-                let unitPriceText = $('#unit-price-' + productId + '-' + unitId).text().replace(/[^0-9]/g, '');
-                let unitPrice = parseFloat(unitPriceText);
-                let priceText = $('#price-' + productId + '-' + unitId).text().replace(/[^0-9]/g, '');
+                let quantity = parseInt($('#quantity-' + bookId + '-' + unitId).val());
+                let priceText = $('#price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
                 let itemTotalPrice = parseFloat(priceText);
 
                 total += itemTotalPrice;
@@ -281,30 +922,31 @@
         $('#final-total').text(formatPrice(finalTotal));
     }
 
+    // Cập nhật modal thanh toán
     function updateCheckoutModal() {
         let total = 0;
         let itemsHtml = '';
 
         $('input[id^="item-checkbox-"]').each(function() {
             if ($(this).is(':checked')) {
-                let productId = $(this).data('product-id');
+                let bookId = $(this).data('product-id');
                 let unitId = $(this).data('unit-id');
-                let quantity = parseInt($('#quantity-' + productId + '-' + unitId).val());
-                let unitPriceText = $('#unit-price-' + productId + '-' + unitId).text().replace(/[^0-9]/g, '');
+                let quantity = parseInt($('#quantity-' + bookId + '-' + unitId).val());
+                let unitPriceText = $('#unit-price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
                 let unitPrice = parseFloat(unitPriceText);
-                let priceText = $('#price-' + productId + '-' + unitId).text().replace(/[^0-9]/g, '');
+                let priceText = $('#price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
                 let itemTotalPrice = parseFloat(priceText);
-                let productName = $(this).closest('.cart-item').find('h6').text();
-                let unitName = $('#unit-' + productId + '-' + unitId + ' option:selected').text();
-                let productImage = $(this).closest('.cart-item').find('img').attr('src');
+                let bookName = $(this).closest('.cart-item').find('h6').text();
+                let unitName = $('#unit-' + bookId + '-' + unitId + ' option:selected').text();
+                let bookImage = $(this).closest('.cart-item').find('img').attr('src');
 
                 total += itemTotalPrice;
 
                 itemsHtml += `
                     <div class="order-item">
-                        <img src="${productImage}" alt="${productName}">
+                        <img src="${bookImage}" alt="${bookName}">
                         <div class="order-item-details">
-                            <p><strong>${productName}</strong></p>
+                            <p><strong>${bookName}</strong></p>
                             <p>Số lượng: ${quantity} | Đơn vị: ${unitName} | Giá: ${formatPrice(unitPrice)}</p>
                         </div>
                         <div class="order-item-price">${formatPrice(itemTotalPrice)}</div>
@@ -326,54 +968,75 @@
         $('#modal-final-total').text(formatPrice(finalTotal));
     }
 
-    function increaseQuantity(productId, donViTinhId) {
-        let input = $('#quantity-' + productId + '-' + donViTinhId);
+    // Tăng số lượng
+    function increaseQuantity(bookId, donViGiaId) {
+        let input = $('#quantity-' + bookId + '-' + donViGiaId);
         let quantity = parseInt(input.val()) + 1;
         input.val(quantity);
-        updatePrice(productId, donViTinhId, quantity);
+        updatePrice(bookId, donViGiaId, quantity);
     }
 
-    function decreaseQuantity(productId, donViTinhId) {
-        let input = $('#quantity-' + productId + '-' + donViTinhId);
+    // Giảm số lượng
+    function decreaseQuantity(bookId, donViGiaId) {
+        let input = $('#quantity-' + bookId + '-' + donViGiaId);
         let quantity = parseInt(input.val());
         if (quantity > 1) {
             quantity -= 1;
             input.val(quantity);
-            updatePrice(productId, donViTinhId, quantity);
+            updatePrice(bookId, donViGiaId, quantity);
         }
     }
 
+    // Xóa sản phẩm
     function removeItem(cartItemId) {
         if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
             $.ajax({
                 url: '/cart/remove',
                 type: 'POST',
+                headers: {
+                    [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                },
                 data: { cartItemId: cartItemId },
-                success: function() {
-                    location.reload();
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Xóa sản phẩm thất bại: ' + response.message);
+                    }
                 },
                 error: function(xhr) {
                     console.error('Error removing item:', xhr);
+                    alert('Đã có lỗi xảy ra khi xóa sản phẩm.');
                 }
             });
         }
     }
 
+    // Xóa toàn bộ giỏ hàng
     function clearCart() {
         if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
             $.ajax({
                 url: '/cart/clear',
                 type: 'POST',
-                success: function() {
-                    location.reload();
+                headers: {
+                    [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Xóa giỏ hàng thất bại: ' + response.message);
+                    }
                 },
                 error: function(xhr) {
                     console.error('Error clearing cart:', xhr);
+                    alert('Đã có lỗi xảy ra khi xóa giỏ hàng.');
                 }
             });
         }
     }
 
+    // Kiểm tra giỏ hàng rỗng
     function checkCartEmpty(itemCount) {
         if (itemCount === 0) {
             $('#cart-items-container').hide();
@@ -390,30 +1053,20 @@
         let initialItemCount = /*[[${cartItems != null ? cartItems.size() : 0}]]*/ 0;
         checkCartEmpty(initialItemCount);
 
+        // Định dạng giá ban đầu
         $('p[id^="unit-price-"]').each(function() {
-            let price = parseFloat($(this).text());
+            let price = parseFloat($(this).text().replace(/[^0-9]/g, ''));
             $(this).text(formatPrice(price));
         });
         $('div[id^="price-"]').each(function() {
-            let price = parseFloat($(this).text());
+            let price = parseFloat($(this).text().replace(/[^0-9]/g, ''));
             $(this).text(formatPrice(price));
         });
-
-        let cartTotal = parseFloat($('#cart-total').text());
-        let directDiscount = parseFloat($('#direct-discount').text());
-        let voucherDiscount = parseFloat($('#voucher-discount').text());
-        let totalSavings = parseFloat($('#total-savings').text());
-        let finalTotal = parseFloat($('#final-total').text());
-
-        $('#cart-total').text(formatPrice(cartTotal));
-        $('#direct-discount').text('-' + formatPrice(directDiscount));
-        $('#voucher-discount').text('-' + formatPrice(voucherDiscount));
-        $('#total-savings').text(formatPrice(totalSavings));
-        $('#final-total').text(formatPrice(finalTotal));
 
         updateCartSummary();
         updateCheckoutModal();
 
+        // Xử lý chọn tất cả
         $('#select-all').on('change', function() {
             let isChecked = $(this).is(':checked');
             $('input[id^="item-checkbox-"]').prop('checked', isChecked);
@@ -421,6 +1074,7 @@
             updateCheckoutModal();
         });
 
+        // Xử lý chọn từng sản phẩm
         $('input[id^="item-checkbox-"]').on('change', function() {
             let allChecked = $('input[id^="item-checkbox-"]').length === $('input[id^="item-checkbox-"]:checked').length;
             $('#select-all').prop('checked', allChecked);
@@ -477,15 +1131,15 @@
             let selectedItems = [];
             let totalAmount = 0;
             $('input[id^="item-checkbox-"]:checked').each(function() {
-                let productId = $(this).data('product-id');
+                let bookId = $(this).data('product-id');
                 let unitId = $(this).data('unit-id');
-                let quantity = parseInt($('#quantity-' + productId + '-' + unitId).val());
-                let priceText = $('#price-' + productId + '-' + unitId).text().replace(/[^0-9]/g, '');
+                let quantity = parseInt($('#quantity-' + bookId + '-' + unitId).val());
+                let priceText = $('#price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
                 let itemTotalPrice = parseFloat(priceText);
                 totalAmount += itemTotalPrice;
 
                 selectedItems.push({
-                    productId: productId,
+                    productId: bookId,
                     donViTinhId: unitId,
                     quantity: quantity,
                     price: itemTotalPrice / quantity
@@ -507,11 +1161,13 @@
                 $.ajax({
                     url: '/thanhtoan/payos',
                     type: 'POST',
+                    headers: {
+                        [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                    },
                     contentType: 'application/json',
                     data: JSON.stringify(orderData),
                     success: function(response) {
                         if (response.success && response.checkoutUrl) {
-                            // Chuyển hướng đến URL thanh toán của PayOS
                             window.location.href = response.checkoutUrl;
                         } else {
                             alert('Không thể tạo link thanh toán: ' + response.message);
@@ -519,7 +1175,7 @@
                     },
                     error: function(xhr) {
                         console.error('Error creating PayOS payment:', xhr);
-                        alert('Đã có lỗi xảy ra khi tạo link thanh toán. Vui lòng thử lại.');
+                        alert('Đã có lỗi xảy ra khi tạo link thanh toán.');
                     }
                 });
             } else {
@@ -527,6 +1183,9 @@
                 $.ajax({
                     url: '/thanhtoan',
                     type: 'POST',
+                    headers: {
+                        [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                    },
                     contentType: 'application/json',
                     data: JSON.stringify(orderData),
                     success: function(response) {

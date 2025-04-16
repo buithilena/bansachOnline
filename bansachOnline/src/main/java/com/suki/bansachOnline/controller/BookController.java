@@ -2,13 +2,19 @@ package com.suki.bansachOnline.controller;
 
 import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.service.BookService;
+import com.suki.bansachOnline.service.GioHangService;
+import com.suki.bansachOnline.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +25,32 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BookController {
 
+    private final UserService userService;
     private final BookService bookService;
+    private final GioHangService gioHangService; // Thêm GioHangService
 
     @GetMapping("/sanpham")
-    public String bookDetail(@RequestParam("id") int bookId, Model model) {
+    public String bookDetail(@RequestParam("id") int bookId,
+                             @AuthenticationPrincipal Object principal,
+                             HttpSession session,
+                             Model model) {
         Book book = bookService.getBookById(bookId);
         if (book == null) {
             return "redirect:/";
         }
+
+        // Lấy thông tin người dùng
+        User user = getUserFromPrincipal(principal);
+
+        // Khởi tạo hoặc lấy giỏ hàng
+        Cart cart = gioHangService.getOrCreateCart(user, session);
+        List<CartItem> cartItems = gioHangService.getCartItems(user, session);
+        int cartItemCount = gioHangService.getCartItemCount(cart);
+
+        // Thêm thông tin giỏ hàng vào model
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("cartItemCount", cartItemCount);
+        model.addAttribute("loggedInUser", user);
 
         List<BookImage> images = bookService.getBookImages(bookId);
         String mainImageUrl = images.stream()
@@ -58,13 +82,12 @@ public class BookController {
         DonViGia selectedDonViGia = bookService.getDonViGiaById(bookId, donViGiaId);
 
         if (selectedDonViGia != null && book != null) {
-            // Tính giá sau khi giảm dựa trên phần trăm
             double discountedPrice = selectedDonViGia.getGia() * (1 - selectedDonViGia.getDiscount() / 100.0);
             response.put("discountedPrice", discountedPrice);
             response.put("gia", selectedDonViGia.getGia());
             response.put("donVi", selectedDonViGia.getDonVi());
             response.put("hasDiscount", selectedDonViGia.getDiscount() > 0);
-            response.put("discount", selectedDonViGia.getDiscount()); // Trả về phần trăm giảm giá
+            response.put("discount", selectedDonViGia.getDiscount());
         } else {
             response.put("error", "Không tìm thấy đơn vị giá hoặc sách.");
         }
@@ -75,8 +98,22 @@ public class BookController {
     @ResponseBody
     public Map<String, Object> getProductsByDoiTuong(@RequestParam("doiTuongId") int doiTuongId) {
         Map<String, Object> response = new HashMap<>();
-        List<Book> books = bookService.getBooksByDoiTuongId(doiTuongId, 10); // Tăng giới hạn lên 10 sách
+        List<Book> books = bookService.getBooksByDoiTuongId(doiTuongId, 10);
         response.put("products", books);
         return response;
+    }
+
+    private User getUserFromPrincipal(Object principal) {
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            org.springframework.security.core.userdetails.UserDetails userDetails = (org.springframework.security.core.userdetails.UserDetails) principal;
+            return userService.findByEmail(userDetails.getUsername()).orElse(null);
+        } else if (principal instanceof OAuth2User) {
+            OAuth2User oAuth2User = (OAuth2User) principal;
+            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+            return "google".equals(provider) ? userService.findByGoogleId(providerId).orElse(null)
+                    : userService.findByFacebookId(providerId).orElse(null);
+        }
+        return null;
     }
 }
