@@ -56,6 +56,9 @@ public class HomeController {
         List<CartItem> cartItems = gioHangService.getCartItems(loggedInUser, session);
         int cartItemCount = gioHangService.getCartItemCount(cart);
 
+        List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
+        model.addAttribute("flashSaleBooks", flashSaleBooks);
+
         // Thêm thông tin giỏ hàng vào model để sử dụng trong header
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("cartItemCount", cartItemCount);

@@ -42,6 +42,9 @@ public class BookController {
         // Lấy thông tin người dùng
         User user = getUserFromPrincipal(principal);
 
+        List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
+        model.addAttribute("flashSaleBooks", flashSaleBooks);
+
         // Khởi tạo hoặc lấy giỏ hàng
         Cart cart = gioHangService.getOrCreateCart(user, session);
         List<CartItem> cartItems = gioHangService.getCartItems(user, session);

@@ -33,5 +33,30 @@ class SidebarManager {
         this.showSection(sectionId);
     }
 }
+$(document).ready(function() {
+    // Toggle sidebar
+    $('#toggleSidebar').click(function() {
+        $('#sidebar').toggleClass('collapsed');
+        $('#main-content').toggleClass('expanded');
+    });
+
+    // Handle nav link clicks
+    $('.nav-link').click(function(e) {
+        e.preventDefault();
+        $('.nav-link').removeClass('active');
+        $(this).addClass('active');
+
+        // Hide all content sections
+        $('.content-section').hide();
+
+        // Show the selected section
+        const sectionId = $(this).attr('href').substring(1);
+        $(`#${sectionId}`).show();
+    });
+
+    // Show dashboard by default
+    $('#dashboard').show();
+});
 
 $(document).ready(() => new SidebarManager());
+

@@ -1,5 +1,6 @@
 package com.suki.bansachOnline.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class DanhMuc {
     @Column(name = "ghi_chu")
     private String ghiChu;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "danhMuc", cascade = CascadeType.ALL)
     private List<Book> books;
 }

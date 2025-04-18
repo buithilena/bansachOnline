@@ -276,3 +276,66 @@
         width: 60px;
     }
 }
+
+ .flash-sale-section {
+     background: linear-gradient(135deg, #fff3e0, #ffe8cc);
+     border-radius: 15px;
+     padding: 20px;
+ }
+
+.flash-sale-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.flash-sale-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.book-image {
+    height: 180px;
+    object-fit: contain;
+    padding: 10px;
+}
+
+.brand-logo-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.brand-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.price-section {
+    min-height: 2rem;
+}
+
+.btn-danger {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.title-text {
+    color: #d63333;
+}
+
+.countdown-timer {
+    font-size: 1rem;
+}

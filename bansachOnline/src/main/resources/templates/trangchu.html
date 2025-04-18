@@ -59,7 +59,7 @@
                             </div>
                             <button class="btn btn-primary w-100 mt-auto"
                                     th:onclick="'addToCart(' + ${product.id} + ')'">
-                                Chọn mua
+                                Thêm vào giỏ hàng
                             </button>
                         </div>
                     </div>
@@ -89,70 +89,220 @@
         </nav>
     </div>
 
-    <!-- Phần sách yêu thích (giữ nguyên) -->
-    <div class="container py-4">
-        <div class="d-flex align-items-center" style="margin: 10px">
-            <img src="/image/img_15.png" class="icon-img me-2" height="32px" width="32px" alt="Icon">
-            <h4 class="mb-0 title-text">Sách yêu thích</h4>
+
+
+    <!-- Phần Flash Sale -->
+    <div class="container py-4 flash-sale-section">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0 title-text fw-bold text-uppercase">Flash Sale - Giảm từ 25% trở lên</h4>
+            </div>
+            <div class="countdown-timer text-danger fw-bold" id="flash-sale-countdown"></div>
         </div>
-        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
-            <div class="col">
-                <div class="card text-center">
-                    <img src="/image/img_4.png" class="card-img-top" alt="Book">
-                    <div class="brand-logo-container">
-                        <img src="/image/img_10.png" class="brand-logo" alt="Publisher">
-                    </div>
-                    <div class="card-body">
-                        <p class="text-primary">Giảm đến 35%</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center">
-                    <img src="/image/img_5.png" class="card-img-top" alt="Book">
-                    <div class="brand-logo-container">
-                        <img src="/image/img_14.png" class="brand-logo" alt="Publisher">
-                    </div>
-                    <div class="card-body">
-                        <p class="text-primary">Giảm đến 30%</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center">
-                    <img src="/image/img_6.png" class="card-img-top" alt="Book">
-                    <div class="brand-logo-container">
-                        <img src="/image/img_13.png" class="brand-logo" alt="Publisher">
-                    </div>
-                    <div class="card-body">
-                        <p class="text-primary">Giảm đến 20%</p>
+
+        <div class="product-scroll-container">
+            <div class="product-list">
+                <div class="product-card" th:each="book : ${flashSaleBooks}">
+                    <div class="card border rounded shadow-sm d-flex flex-column h-100">
+            <span class="badge bg-danger position-absolute discount-badge"
+                  th:id="'discount-badge-' + ${book.id}"
+                  th:style="${book.hasDiscount()} ? '' : 'display: none;'"
+                  th:text="'-' + ${#numbers.formatDecimal(book.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>                        <img th:src="${book.mainImageUrl ?: '/images/placeholder.png'}" class="card-img-top" th:alt="${book.tenSach}">
+                        <div class="card-body text-center d-flex flex-column">
+                            <a th:href="@{/book/sanpham(id=${book.id})}" class="card-title text-decoration-none">
+                                <h6 th:text="${book.tenSach}"></h6>
+                            </a>
+                            <div class="price-section">
+                                <div th:id="'discounted-price-' + ${book.id}" class="discounted-price"
+                                     th:data-price="${book.getDiscountedPrice()}"
+                                     th:text="${#numbers.formatDecimal(book.getDiscountedPrice(), 0, 0)} + 'đ'"></div>
+                                <div th:id="'original-price-' + ${book.id}" class="original-price"
+                                     th:style="${book.hasDiscount()} ? '' : 'display: none;'"
+                                     th:data-price="${book.getDefaultDonViTinh()?.gia ?: 0}"
+                                     th:text="${#numbers.formatDecimal(book.getDefaultDonViTinh().gia, 0, 0)} + 'đ'">
+
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-auto"
+                                    th:onclick="'addToCart(' + ${book.id} + ')'">
+                                Thêm vào giỏ hàng 
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card text-center">
-                    <img src="/image/img_7.png" class="card-img-top" alt="Book">
-                    <div class="brand-logo-container">
-                        <img src="/image/img_12.png" class="brand-logo" alt="Publisher">
-                    </div>
-                    <div class="card-body">
-                        <p class="text-primary">Voucher giảm đến 30%</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card text-center">
-                    <img src="/image/img_8.png" class="card-img-top" alt="Book">
-                    <div class="brand-logo-container">
-                        <img src="/image/img_11.png" class="brand-logo" alt="Publisher">
-                    </div>
-                    <div class="card-body">
-                        <p class="text-primary">Giảm đến 20%</p>
-                    </div>
+                <!-- Thông báo nếu không có sản phẩm Flash Sale -->
+                <div class="text-center text-muted" th:unless="${flashSaleBooks != null and not #lists.isEmpty(flashSaleBooks)}">
+                    Hiện tại chưa có sách nào trong chương trình Flash Sale.
                 </div>
             </div>
         </div>
+
+
     </div>
+
+
+    <!-- JavaScript cho countdown timer -->
+    <!-- JavaScript cho countdown timer và addToCart -->
+    <script th:inline="javascript">
+        // Countdown timer cho Flash Sale (kết thúc sau 24 giờ)
+        function startCountdown() {
+            const countdownElement = document.getElementById('flash-sale-countdown');
+            if (!countdownElement) return;
+
+            const endTime = new Date().getTime() + 24 * 60 * 60 * 1000; // 24 giờ từ bây giờ
+
+            const updateCountdown = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+
+                if (distance < 0) {
+                    clearInterval(updateCountdown);
+                    countdownElement.innerHTML = 'Flash Sale đã kết thúc!';
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+
+        // Khởi động countdown khi trang tải
+        document.addEventListener('DOMContentLoaded', startCountdown);
+
+        // Hàm addToCart
+        function addToCart(bookId, donViGiaId) {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            // Nếu donViGiaId không được cung cấp (trường hợp danh sách sản phẩm), đặt mặc định là 0
+            donViGiaId = donViGiaId || 0;
+
+            $.ajax({
+                url: '/api/check-auth',
+                type: 'GET',
+                success: function(auth) {
+                    if (!auth.isAuthenticated) {
+                        Toastify({
+                            text: "Vui lòng đăng nhập!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#dc3545",
+                            stopOnFocus: true
+                        }).showToast();
+                        window.location.href = '/login';
+                    } else {
+                        addToCartAjax(bookId, donViGiaId);
+                    }
+                },
+                error: function() {
+                    Toastify({
+                        text: "Lỗi kiểm tra đăng nhập!",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#dc3545",
+                        stopOnFocus: true
+                    }).showToast();
+                    window.location.href = '/login';
+                }
+            });
+        }
+
+        function addToCartAjax(bookId, donViGiaId) {
+            var quantity = $('#quantity').val() ? parseInt($('#quantity').val()) : 1;
+            if (isNaN(quantity) || quantity < 1) {
+                Toastify({
+                    text: "Số lượng không hợp lệ!",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc3545",
+                    stopOnFocus: true
+                }).showToast();
+                return;
+            }
+
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                url: '/cart/add',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    productId: bookId,
+                    donViGiaId: donViGiaId,
+                    quantity: quantity
+                }),
+                beforeSend: function(xhr) {
+                    if (token && header) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Toastify({
+                            text: "Đã thêm sản phẩm vào giỏ hàng!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#28a745",
+                            stopOnFocus: true
+                        }).showToast();
+                        if (response.cartCount !== undefined) {
+                            $('.cart-count').text(response.cartCount);
+                        }
+                    } else {
+                        Toastify({
+                            text: response.message || "Lỗi khi thêm sản phẩm vào giỏ hàng!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#dc3545",
+                            stopOnFocus: true
+                        }).showToast();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Toastify({
+                        text: "Lỗi khi thêm sản phẩm: " + (xhr.responseText || error),
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#dc3545",
+                        stopOnFocus: true
+                    }).showToast();
+                }
+            });
+        }
+
+        function updatePrice(bookId, donViGiaId) {
+            $.ajax({
+                url: '/book/update-price',
+                type: 'GET',
+                data: { bookId: bookId, donViGiaId: donViGiaId },
+                success: function(response) {
+                    $('#discounted-price-' + bookId).text(Number(response.discountedPrice).toLocaleString('vi-VN') + 'đ');
+                    if (response.hasDiscount) {
+                        $('#original-price-' + bookId).text(Number(response.gia).toLocaleString('vi-VN') + 'đ').show();
+                        $('#discount-badge-' + bookId).text('-' + Number(response.discount) + '%').show();
+                    } else {
+                        $('#original-price-' + bookId).hide();
+                        $('#discount-badge-' + bookId).hide();
+                    }
+                    $('.unit-btn-group button').removeClass('active');
+                    $('#unit-btn-' + bookId + '-' + donViGiaId).addClass('active');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Lỗi khi cập nhật giá:', error);
+                }
+            });
+        }
+    </script>
 </main>
 
 <!-- Import Footer -->
