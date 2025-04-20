@@ -1,3 +1,55 @@
+/* Table styling */
+.table th, .table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table img {
+    max-width: 50px;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* Modal styling */
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-body .form-label {
+    font-weight: 500;
+}
+
+.invalid-feedback {
+    display: none;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Search input */
+#search-products {
+    max-width: 300px;
+}
+
+/* Pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 14px;
+    }
+
+    .modal-lg {
+        max-width: 95%;
+    }
+}
+
+
 
 body {
     font-family: Arial, sans-serif;

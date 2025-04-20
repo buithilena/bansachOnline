@@ -11,4 +11,8 @@ import java.util.List;
 public interface BookImageRepository extends JpaRepository<BookImage, Integer> {
     @Query("SELECT bi FROM BookImage bi WHERE bi.book.id = :bookId")
     List<BookImage> findByBookId(int bookId);
+
+
+    void deleteByBookId(Integer bookId);
+
 }

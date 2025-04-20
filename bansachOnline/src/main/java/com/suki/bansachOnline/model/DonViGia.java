@@ -1,11 +1,11 @@
 package com.suki.bansachOnline.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Table(name = "don_vi_gia")
@@ -20,6 +20,7 @@ public class DonViGia {
 
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
+    @JsonBackReference
     private Book book;
 
     @Column(name = "don_vi")

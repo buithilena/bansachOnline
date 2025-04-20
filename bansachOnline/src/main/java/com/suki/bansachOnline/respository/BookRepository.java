@@ -17,4 +17,16 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias")
     List<Book> findAllWithDonViGias();
+
+
+    List<Book> findByDoiTuongId(Integer doiTuongId);
+
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias WHERE b.danhMuc.id = :danhMucId AND b.id != :bookId ORDER BY RAND()")
+    List<Book> findRelatedBooks(@Param("bookId") Integer bookId, @Param("danhMucId") Integer danhMucId);
+
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias LEFT JOIN FETCH b.bookImages")
+    List<Book> findAllWithDetails();
+
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias LEFT JOIN FETCH b.bookImages WHERE b.id = :id")
+    Book findByIdWithDetails(@Param("id") Integer id);
 }

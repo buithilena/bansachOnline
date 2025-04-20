@@ -1,11 +1,11 @@
 package com.suki.bansachOnline.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import java.util.List;
 
@@ -33,5 +33,6 @@ public class DoiTuong {
     private String ghiChu;
 
     @OneToMany(mappedBy = "doiTuong", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Book> books;
 }

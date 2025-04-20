@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface DonViGiaRepository extends JpaRepository<DonViGia, Integer> {
     @Query("SELECT d FROM DonViGia d WHERE d.id = :donViGiaId AND d.book.id = :bookId")
     DonViGia findByIdAndBookId(int donViGiaId, int bookId);
+
+    void deleteByBookId(Integer bookId);
 }

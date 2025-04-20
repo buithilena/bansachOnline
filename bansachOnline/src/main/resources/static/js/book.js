@@ -1,145 +1,399 @@
 $(document).ready(function () {
-    // Load danh sách đối tượng vào dropdown
-    function loadDoiTuong() {
-        const doiTuongSelect = $('#doi_tuong_id');
-        doiTuongSelect.prop('disabled', true);
+    let currentPage = 1;
+    const pageSize = 10;
+    let imageInputs = 0; // Biến đếm số lượng input ảnh
+
+    // Hàm lấy danh sách sách
+    function loadBooks(page = 1) {
         $.ajax({
-            url: '/api/quanly/doituong',
+            url: `/api/quanly/books?page=${page}&size=${pageSize}`,
             method: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                // Xóa các option hiện tại (trừ option mặc định và "Thêm mới")
-                doiTuongSelect.find('option:not(:first):not([value="add-doi-tuong"])').remove();
-                // Thêm các đối tượng từ API
-                data.forEach(function (doiTuong) {
-                    doiTuongSelect.append(
-                        `<option value="${doiTuong.id}">${doiTuong.tenDoiTuong}</option>`
-                    );
+            success: function (response) {
+                $('#products-tbody').empty();
+                response.forEach(book => {
+                    const mainImage = book.bookImages.find(img => img.isMain) || { imageUrl: '/images/placeholder.png' };
+                    const donViGia = book.donViGias && book.donViGias.length > 0 ? book.donViGias[0] : { gia: 0, discount: 0 };
+                    const discountedPrice = donViGia.gia * (1 - (donViGia.discount || 0) / 100);
+                    $('#products-tbody').append(`
+                        <tr>
+                            <td>${book.id}</td>
+                            <td>${book.tenSach}</td>
+                            <td><img src="${mainImage.imageUrl}" alt="${book.tenSach}" style="width: 50px;"></td>
+                            <td>${book.tacGia ? book.tacGia.tenTacGia : 'N/A'}</td>
+                            <td>${book.danhMuc ? book.danhMuc.tenDanhMuc : 'N/A'}</td>
+                            <td>${book.nhaXuatBan ? book.nhaXuatBan.tenNhaXuatBan : 'N/A'}</td>
+                            <td>${book.doiTuong ? book.doiTuong.tenDoiTuong : 'N/A'}</td>
+                            <td>${discountedPrice.toLocaleString('vi-VN')} VNĐ</td>
+                            <td>${book.soLuong}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning edit-book" data-id="${book.id}"><i class="fas fa-edit"></i> Sửa</button>
+                                <button class="btn btn-sm btn-danger delete-book" data-id="${book.id}"><i class="fas fa-trash"></i> Xóa</button>
+                            </td>
+                        </tr>
+                    `);
                 });
-                doiTuongSelect.prop('disabled', false);
+                updatePagination(response.length, page);
+                $('#total-products').text(response.length);
             },
-            error: function (err) {
-                console.error('Lỗi khi tải danh sách đối tượng:', err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể tải danh sách đối tượng!',
-                });
-                doiTuongSelect.prop('disabled', false);
+            error: function () {
+                Swal.fire('Lỗi', 'Không thể tải danh sách sách!', 'error');
             }
         });
     }
 
-    // Gọi loadDoiTuong khi modal addBookModal được mở
-    $('#addBookModal').on('show.bs.modal', function () {
-        console.log('Opening addBookModal');
-        loadDoiTuong();
-    });
-
-    // Xử lý chọn "Thêm đối tượng mới"
-    $('#doi_tuong_id').on('change', function () {
-        console.log('doi_tuong_id changed:', $(this).val());
-        if ($(this).val() === 'add-doi-tuong') {
-            console.log('Attempting to open addDoiTuongModal');
-            // Đóng các modal khác trước khi mở
-            $('.modal').modal('hide');
-            // Kiểm tra xem modal có tồn tại không
-            if ($('#addDoiTuongModal').length) {
-                $('#addDoiTuongModal').modal('show');
-            } else {
-                console.error('Modal #addDoiTuongModal not found in DOM');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không tìm thấy modal thêm đối tượng!',
-                });
-            }
-            $(this).val(''); // Reset dropdown
+    // Hàm cập nhật phân trang
+    function updatePagination(totalItems, currentPage) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        $('#products-pagination').empty();
+        for (let i = 1; i <= totalPages; i++) {
+            $('#products-pagination').append(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
         }
-    });
+    }
 
-    // Xử lý preview ảnh khi nhập URL
-    function previewImage(inputId, previewId) {
-        $(`#${inputId}`).on('input', function () {
-            const url = $(this).val();
-            const preview = $(`#${previewId}`);
-            if (url) {
-                preview.attr('src', url).show();
-                // Kiểm tra xem URL có hợp lệ không
-                preview.on('error', function () {
-                    $(this).hide();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Cảnh báo',
-                        text: 'URL ảnh không hợp lệ!',
-                    });
+    // Load danh sách tác giả, danh mục, nhà xuất bản, đối tượng
+    function loadDropdowns(modalId = '') {
+        // Tác giả
+        $.ajax({
+            url: '/api/quanly/authors',
+            method: 'GET',
+            success: function (authors) {
+                $(`${modalId} #product_author, ${modalId} #edit_product_author`).empty().append('<option value="">Chọn tác giả</option>');
+                authors.forEach(author => {
+                    $(`${modalId} #product_author, ${modalId} #edit_product_author`).append(`<option value="${author.id}">${author.tenTacGia}</option>`);
                 });
-            } else {
-                preview.hide();
+            },
+            error: function () {
+                Swal.fire('Lỗi', 'Không thể tải danh sách tác giả!', 'error');
+            }
+        });
+
+        // Danh mục
+        $.ajax({
+            url: '/api/quanly/categories',
+            method: 'GET',
+            success: function (categories) {
+                $(`${modalId} #product_category, ${modalId} #edit_product_category`).empty().append('<option value="">Chọn danh mục</option>');
+                categories.forEach(category => {
+                    $(`${modalId} #product_category, ${modalId} #edit_product_category`).append(`<option value="${category.id}">${category.tenDanhMuc}</option>`);
+                });
+            },
+            error: function () {
+                Swal.fire('Lỗi', 'Không thể tải danh sách danh mục!', 'error');
+            }
+        });
+
+        // Nhà xuất bản
+        $.ajax({
+            url: '/api/quanly/publishers',
+            method: 'GET',
+            success: function (publishers) {
+                $(`${modalId} #product_publisher, ${modalId} #edit_product_publisher`).empty().append('<option value="">Chọn nhà xuất bản</option>');
+                publishers.forEach(publisher => {
+                    $(`${modalId} #product_publisher, ${modalId} #edit_product_publisher`).append(`<option value="${publisher.id}">${publisher.tenNhaXuatBan}</option>`);
+                });
+            },
+            error: function () {
+                Swal.fire('Lỗi', 'Không thể tải danh sách nhà xuất bản!', 'error');
+            }
+        });
+
+        // Đối tượng
+        $.ajax({
+            url: '/api/quanly/doituongs',
+            method: 'GET',
+            success: function (doituongs) {
+                $(`${modalId} #product_target, ${modalId} #edit_product_target`).empty().append('<option value="">Chọn đối tượng</option>');
+                doituongs.forEach(doituong => {
+                    $(`${modalId} #product_target, ${modalId} #edit_product_target`).append(`<option value="${doituong.id}">${doituong.tenDoiTuong}</option>`);
+                });
+            },
+            error: function () {
+                Swal.fire('Lỗi', 'Không thể tải danh sách đối tượng!', 'error');
             }
         });
     }
 
-    // Áp dụng preview cho ảnh lớn và nhỏ
-    previewImage('doi_tuong_image_max', 'preview_image_max');
-    previewImage('doi_tuong_image_min', 'preview_image_min');
+    // Thêm ảnh vào bảng
+    $('#add-image').on('click', function () {
+        const imageUrl = $('#image-url').val();
+        const isMain = $('#image-is-main').is(':checked');
+        const imageOrder = parseInt($('#image-order').val()) || 0;
 
-    // Xử lý lưu đối tượng mới
-    $('#saveDoiTuong').on('click', function () {
-        const doiTuongData = {
-            tenDoiTuong: $('#doi_tuong_name').val().trim(),
-            imageMax: $('#doi_tuong_image_max').val().trim(),
-            imageMin: $('#doi_tuong_image_min').val().trim(),
-            ghiChu: $('#doi_tuong_note').val().trim()
-        };
-
-        // Kiểm tra dữ liệu đầu vào
-        if (!doiTuongData.tenDoiTuong || !doiTuongData.imageMax || !doiTuongData.imageMin) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cảnh báo',
-                text: 'Vui lòng điền đầy đủ các trường bắt buộc!',
-            });
+        if (!imageUrl) {
+            Swal.fire('Lỗi', 'Vui lòng nhập URL ảnh!', 'error');
             return;
         }
 
-        // Vô hiệu hóa nút Lưu để tránh click nhiều lần
-        const saveBtn = $(this);
-        saveBtn.prop('disabled', true).text('Đang lưu...');
+        $('#image-table-body').append(`
+            <tr data-id="${imageInputs}">
+                <td>${imageUrl}</td>
+                <td>${isMain ? 'Có' : 'Không'}</td>
+                <td>${imageOrder}</td>
+                <td><img src="${imageUrl}" alt="Preview" style="max-width: 100px;"></td>
+                <td>
+                    <button class="btn btn-sm btn-danger remove-table-image"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+
+        // Reset form
+        $('#image-url').val('');
+        $('#image-is-main').prop('checked', false);
+        $('#image-order').val('');
+        $('#image-preview').hide();
+        imageInputs++;
+    });
+
+    // Xóa ảnh từ bảng
+    $(document).on('click', '.remove-table-image', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Xem trước ảnh khi nhập URL
+    $('#image-url, #detail_image_url').on('input', function () {
+        const url = $(this).val();
+        const previewId = $(this).attr('id') === 'image-url' ? '#image-preview' : '#detail_image_preview';
+        const previewImgId = $(this).attr('id') === 'image-url' ? '#preview-image' : '#detail_preview_image';
+        if (url) {
+            $(previewId).show();
+            $(previewImgId).attr('src', url);
+        } else {
+            $(previewId).hide();
+        }
+    });
+
+    // Thu thập danh sách ảnh từ bảng
+    function collectImagesFromTable(tableId = '#image-table-body') {
+        const images = [];
+        $(tableId + ' tr').each(function () {
+            const imageUrl = $(this).find('td:eq(0)').text();
+            const isMain = $(this).find('td:eq(1)').text() === 'Có';
+            const imageOrder = parseInt($(this).find('td:eq(2)').text()) || 0;
+            images.push({
+                imageUrl: imageUrl,
+                isMain: isMain,
+                imageOrder: imageOrder
+            });
+        });
+        return images;
+    }
+
+    // Thêm sách
+    $('#saveProduct').click(function () {
+        if (!$('#addProductForm')[0].checkValidity()) {
+            $('#addProductForm')[0].reportValidity();
+            return;
+        }
+
+        const book = {
+            tenSach: $('#product_name').val(),
+            moTaNgan: $('#product_description').val(),
+            namXuatBan: $('#product_year').val() ? parseInt($('#product_year').val()) : null,
+            soTrang: $('#product_pages').val() ? parseInt($('#product_pages').val()) : null,
+            soLuong: parseInt($('#product_quantity').val()),
+            tacGia: $('#product_author').val() ? { id: parseInt($('#product_author').val()) } : null,
+            danhMuc: $('#product_category').val() ? { id: parseInt($('#product_category').val()) } : null,
+            nhaXuatBan: $('#product_publisher').val() ? { id: parseInt($('#product_publisher').val()) } : null,
+            doiTuong: $('#product_target').val() ? { id: parseInt($('#product_target').val()) } : null
+        };
+        const donViGia = {
+            donVi: 'Cuốn',
+            gia: parseFloat($('#product_price').val()),
+            discount: $('#product_discount').val() ? parseFloat($('#product_discount').val()) : 0
+        };
+        const images = collectImagesFromTable();
+
+        if (images.length === 0) {
+            Swal.fire('Lỗi', 'Vui lòng thêm ít nhất một ảnh sản phẩm!', 'error');
+            return;
+        }
 
         $.ajax({
-            url: '/api/quanly/doituong',
+            url: '/api/quanly/books',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(doiTuongData),
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: 'Đã thêm đối tượng mới!',
-                });
-                $('#addDoiTuongModal').modal('hide');
-                $('#addDoiTuongForm')[0].reset(); // Reset form
-                $('#preview_image_max, #preview_image_min').hide(); // Ẩn preview ảnh
-                loadDoiTuong(); // Tải lại danh sách đối tượng
+            data: JSON.stringify({ book, donViGia, images }),
+            success: function () {
+                $('#addProductModal').modal('hide');
+                $('#addProductForm')[0].reset();
+                $('#image-table-body').empty();
+                loadBooks(currentPage);
+                Swal.fire('Thành công', 'Thêm sách thành công!', 'success');
             },
-            error: function (err) {
-                console.error('Lỗi khi thêm đối tượng:', err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể thêm đối tượng! Vui lòng thử lại.',
-                });
-            },
-            complete: function () {
-                saveBtn.prop('disabled', false).text('Lưu');
+            error: function (xhr) {
+                Swal.fire('Lỗi', 'Không thể thêm sách: ' + (xhr.responseText || 'Lỗi không xác định'), 'error');
             }
         });
     });
 
-    // Reset form và preview khi đóng modal
-    $('#addDoiTuongModal').on('hidden.bs.modal', function () {
-        $('#addDoiTuongForm')[0].reset();
-        $('#preview_image_max, #preview_image_min').hide();
+    // Sửa sách
+    $(document).on('click', '.edit-book', function () {
+        const bookId = $(this).data('id');
+        $.get(`/api/quanly/books/${bookId}`, function (book) {
+            $('#edit_product_id').val(book.id);
+            $('#edit_product_name').val(book.tenSach);
+            $('#edit_product_description').val(book.moTaNgan);
+            $('#edit_product_year').val(book.namXuatBan);
+            $('#edit_product_pages').val(book.soTrang);
+            $('#edit_product_quantity').val(book.soLuong);
+            $('#edit_product_author').val(book.tacGia ? book.tacGia.id : '');
+            $('#edit_product_category').val(book.danhMuc ? book.danhMuc.id : '');
+            $('#edit_product_publisher').val(book.nhaXuatBan ? book.nhaXuatBan.id : '');
+            $('#edit_product_target').val(book.doiTuong ? book.doiTuong.id : '');
+            const donViGia = book.donViGias && book.donViGias.length > 0 ? book.donViGias[0] : { gia: 0, discount: 0 };
+            $('#edit_product_price').val(donViGia.gia);
+            $('#edit_product_discount').val(donViGia.discount);
+
+            // Load danh sách ảnh
+            $('#detail_image_table_body').empty();
+            if (book.bookImages && book.bookImages.length > 0) {
+                book.bookImages.forEach(img => {
+                    $('#detail_image_table_body').append(`
+                        <tr data-id="${img.id}">
+                            <td>${img.imageUrl}</td>
+                            <td>${img.isMain ? 'Có' : 'Không'}</td>
+                            <td>${img.imageOrder}</td>
+                            <td><img src="${img.imageUrl}" alt="Preview" style="max-width: 100px;"></td>
+                            <td>
+                                <button class="btn btn-sm btn-danger remove-table-image"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // Bật các trường nhập ảnh trong modal chỉnh sửa
+            $('#detail_image_url, #detail_image_is_main, #detail_image_order, #add_detail_image').prop('disabled', false);
+            loadDropdowns('#editProductModal');
+            $('#editProductModal').modal('show');
+        });
     });
+
+    // Thêm ảnh vào bảng chỉnh sửa
+    $('#add_detail_image').on('click', function () {
+        const imageUrl = $('#detail_image_url').val();
+        const isMain = $('#detail_image_is_main').is(':checked');
+        const imageOrder = parseInt($('#detail_image_order').val()) || 0;
+
+        if (!imageUrl) {
+            Swal.fire('Lỗi', 'Vui lòng nhập URL ảnh!', 'error');
+            return;
+        }
+
+        $('#detail_image_table_body').append(`
+            <tr data-id="${imageInputs}">
+                <td>${imageUrl}</td>
+                <td>${isMain ? 'Có' : 'Không'}</td>
+                <td>${imageOrder}</td>
+                <td><img src="${imageUrl}" alt="Preview" style="max-width: 100px;"></td>
+                <td>
+                    <button class="btn btn-sm btn-danger remove-table-image"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+
+        // Reset form
+        $('#detail_image_url').val('');
+        $('#detail_image_is_main').prop('checked', false);
+        $('#detail_image_order').val('');
+        $('#detail_image_preview').hide();
+        imageInputs++;
+    });
+
+    // Lưu sửa sách
+    $('#saveEditProduct').click(function () {
+        if (!$('#editProductForm')[0].checkValidity()) {
+            $('#editProductForm')[0].reportValidity();
+            return;
+        }
+
+        const bookId = $('#edit_product_id').val();
+        const book = {
+            tenSach: $('#edit_product_name').val(),
+            moTaNgan: $('#edit_product_description').val(),
+            namXuatBan: $('#edit_product_year').val() ? parseInt($('#edit_product_year').val()) : null,
+            soTrang: $('#edit_product_pages').val() ? parseInt($('#edit_product_pages').val()) : null,
+            soLuong: parseInt($('#edit_product_quantity').val()),
+            tacGia: $('#edit_product_author').val() ? { id: parseInt($('#edit_product_author').val()) } : null,
+            danhMuc: $('#edit_product_category').val() ? { id: parseInt($('#edit_product_category').val()) } : null,
+            nhaXuatBan: $('#edit_product_publisher').val() ? { id: parseInt($('#edit_product_publisher').val()) } : null,
+            doiTuong: $('#edit_product_target').val() ? { id: parseInt($('#edit_product_target').val()) } : null
+        };
+        const donViGia = {
+            donVi: 'Cuốn',
+            gia: parseFloat($('#edit_product_price').val()),
+            discount: $('#edit_product_discount').val() ? parseFloat($('#edit_product_discount').val()) : 0
+        };
+        const images = collectImagesFromTable('#detail_image_table_body');
+
+        if (images.length === 0) {
+            Swal.fire('Lỗi', 'Vui lòng thêm ít nhất một ảnh sản phẩm!', 'error');
+            return;
+        }
+
+        $.ajax({
+            url: `/api/quanly/books/${bookId}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ book, donViGia, images }),
+            success: function () {
+                $('#editProductModal').modal('hide');
+                loadBooks(currentPage);
+                Swal.fire('Thành công', 'Cập nhật sách thành công!', 'success');
+            },
+            error: function (xhr) {
+                Swal.fire('Lỗi', 'Không thể cập nhật sách: ' + (xhr.responseText || 'Lỗi không xác định'), 'error');
+            }
+        });
+    });
+
+    // Xóa sách
+    $(document).on('click', '.delete-book', function () {
+        const bookId = $(this).data('id');
+        Swal.fire({
+            title: 'Xác nhận',
+            text: 'Bạn có chắc muốn xóa sách này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then(result => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/api/quanly/books/${bookId}`,
+                    method: 'DELETE',
+                    success: function () {
+                        loadBooks(currentPage);
+                        Swal.fire('Thành công', 'Xóa sách thành công!', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Lỗi', 'Không thể xóa sách!', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Tìm kiếm sách
+    $('#search-products').on('input', function () {
+        const searchTerm = $(this).val().toLowerCase();
+        $('#products-tbody tr').filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(searchTerm) > -1);
+        });
+    });
+
+    // Chuyển trang
+    $(document).on('click', '.page-link', function (e) {
+        e.preventDefault();
+        currentPage = $(this).data('page');
+        loadBooks(currentPage);
+    });
+
+    // Load dữ liệu ban đầu
+    loadBooks();
+    loadDropdowns('#addProductModal');
 });
