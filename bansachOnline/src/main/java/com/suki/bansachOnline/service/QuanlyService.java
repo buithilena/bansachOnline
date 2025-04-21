@@ -3,11 +3,16 @@ package com.suki.bansachOnline.service;
 import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.respository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class QuanlyService {
@@ -32,6 +37,11 @@ public class QuanlyService {
 
     @Autowired
     private DoiTuongRepository doiTuongRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // Các phương thức hiện có cho tác giả, nhà xuất bản, danh mục, đối tượng không cần sửa
     public List<TacGia> getAllTacGia() {
@@ -276,4 +286,80 @@ public class QuanlyService {
         }
         return false;
     }
+
+
+    // Lấy danh sách tất cả người dùng
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    // Lấy thông tin người dùng theo ID
+    public Optional<User> getUserById(UUID id) {
+        return userRepository.findById(id);
+    }
+
+    // Thêm người dùng mới
+    @Transactional
+    public User addUser(User user) {
+        // Mã hóa mật khẩu trước khi lưu
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        // Đặt role mặc định là USER nếu không được chỉ định
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        return userRepository.save(user);
+    }
+
+    // Cập nhật thông tin người dùng
+    @Transactional
+    public User updateUser(UUID id, User user) {
+        if (!userRepository.existsById(id)) {
+            return null;
+        }
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
+
+        // Cập nhật các trường
+        existingUser.setName(user.getName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhoneNumber(user.getPhoneNumber());
+        existingUser.setAddress(user.getAddress());
+        existingUser.setDateOfBirth(user.getDateOfBirth());
+        existingUser.setPicture(user.getPicture());
+        existingUser.setRole(user.getRole());
+
+        // Cập nhật mật khẩu nếu có
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        return userRepository.save(existingUser);
+    }
+
+    // Xóa người dùng
+    @Transactional
+    public boolean deleteUser(UUID id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    // Tìm người dùng theo email
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Page<User> getAllUsers(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page - 1, size); // Frontend sử dụng page bắt đầu từ 1
+        if (search == null || search.isEmpty()) {
+            return userRepository.findAll(pageable);
+        }
+        return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search, pageable);
+    }
 }
+
+

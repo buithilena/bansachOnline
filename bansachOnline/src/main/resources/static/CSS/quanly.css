@@ -64,6 +64,12 @@ body {
     padding-top: 20px;
     transition: width 0.3s;
 }
+.content-section {
+    display: none;
+}
+.content-section.active {
+    display: block;
+}
 .sidebar.collapsed {
     width: 70px;
 }

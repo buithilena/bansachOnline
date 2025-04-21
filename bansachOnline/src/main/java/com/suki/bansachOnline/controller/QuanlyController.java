@@ -3,13 +3,11 @@ package com.suki.bansachOnline.controller;
 import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.service.QuanlyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/quanly")
@@ -298,5 +296,62 @@ public class QuanlyController {
             images.add(image);
         }
         return images;
+    }
+
+
+    // Lấy danh sách tất cả người dùng
+//    @GetMapping("/users")
+//    public ResponseEntity<List<User>> getAllUsers() {
+//        List<User> users = quanlyService.getAllUsers();
+//        return ResponseEntity.ok(users);
+//    }
+
+    // Lấy thông tin người dùng theo ID
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+        Optional<User> user = quanlyService.getUserById(id);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Thêm người dùng mới
+    @PostMapping("/users")
+    public ResponseEntity<User> addUser(@RequestBody User user) {
+        User newUser = quanlyService.addUser(user);
+        return ResponseEntity.ok(newUser);
+    }
+
+    // Cập nhật thông tin người dùng
+    @PutMapping("/users/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user) {
+        User updatedUser = quanlyService.updateUser(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Xóa người dùng
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        boolean deleted = quanlyService.deleteUser(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, Object>> getAllUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search) {
+        Page<User> userPage = quanlyService.getAllUsers(page, size, search);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", userPage.getContent());
+        response.put("totalPages", userPage.getTotalPages());
+        response.put("currentPage", userPage.getNumber() + 1);
+        response.put("totalItems", userPage.getTotalElements());
+        return ResponseEntity.ok(response);
     }
 }

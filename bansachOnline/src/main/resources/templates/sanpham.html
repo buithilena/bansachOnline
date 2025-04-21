@@ -22,9 +22,9 @@
         <nav style="--bs-breadcrumb-divider: '/';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/" style="text-decoration: none;">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none;">Doraemon</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none;">Conan</a></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="${product.tenSach}">Harry Potter</li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${product.danhMuc.tenDanhMuc}"></li>
+
+                <li class="breadcrumb-item active" aria-current="page" th:text="${product.tenSach}"></li>
             </ol>
         </nav>
     </div>
@@ -94,8 +94,8 @@
                     </div>
                     <div class="col-8">
                         <p class="text-muted" th:text="${product.danhMuc != null ? product.danhMuc.tenDanhMuc : 'Không xác định'}"></p>
-                        <p class="text-muted" th:text="${product.tacGia ?: 'Không xác định'}"></p>
-                        <p class="text-muted" th:text="${product.nhaXuatBan ?: 'Không xác định'}"></p>
+                        <p class="text-muted" th:text="${product.tacGia != null ? product.tacGia.tenTacGia: 'Không xác định'}"></p>
+                        <p class="text-muted" th:text="${product.nhaXuatBan != null ? product.nhaXuatBan.tenNhaXuatBan: 'Không xác định'}"></p>
                         <p class="text-muted" th:text="${product.namXuatBan ?: 'Không xác định'}"></p>
                         <p class="text-muted" th:text="${product.soTrang ?: 'Không xác định'}"></p>
                         <p class="text-muted" th:text="${product.thuongHieu ?: 'Không xác định'}"></p>

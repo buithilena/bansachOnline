@@ -683,6 +683,159 @@
         </div>
     </div>
 
+
+    <!-- Quản lý người dùng -->
+    <div class="container-fluid content-section" id="users" style="display: none;">
+        <h3 class="mt-5">Danh sách người dùng</h3>
+        <div class="mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm người dùng</button>
+            <button class="btn btn-success">Xuất PDF</button>
+        </div>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="search-users" placeholder="Tìm kiếm người dùng...">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="users-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Vai trò</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="users-pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Modal Thêm Người Dùng -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Thêm Người Dùng Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="user_name" class="form-label">Tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="user_name" required placeholder="VD: Nguyễn Văn A">
+                                <div class="invalid-feedback">Vui lòng nhập tên!</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="user_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="user_email" required placeholder="VD: example@gmail.com">
+                                <div class="invalid-feedback">Vui lòng nhập email!</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="user_phone" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="user_phone" placeholder="VD: 0123456789">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="user_role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-control" id="user_role" required>
+                                    <option value="USER">Người dùng</option>
+                                    <option value="ADMIN">Quản trị viên</option>
+                                </select>
+                                <div class="invalid-feedback">Vui lòng chọn vai trò!</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="user_address" class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" id="user_address" placeholder="VD: 123 Đường ABC">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="user_birthday" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="user_birthday">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="user_password" required placeholder="Nhập mật khẩu">
+                            <div class="invalid-feedback">Vui lòng nhập mật khẩu!</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveUser">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sửa Người Dùng -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Sửa Thông Tin Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="edit_user_id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_name" class="form-label">Tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_user_name" required placeholder="VD: Nguyễn Văn A">
+                                <div class="invalid-feedback">Vui lòng nhập tên!</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="edit_user_email" required placeholder="VD: example@gmail.com">
+                                <div class="invalid-feedback">Vui lòng nhập email!</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_phone" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="edit_user_phone" placeholder="VD: 0123456789">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-control" id="edit_user_role" required>
+                                    <option value="USER">Người dùng</option>
+                                    <option value="ADMIN">Quản trị viên</option>
+                                </select>
+                                <div class="invalid-feedback">Vui lòng chọn vai trò!</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_address" class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" id="edit_user_address" placeholder="VD: 123 Đường ABC">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_user_birthday" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="edit_user_birthday">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_user_password" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="edit_user_password" placeholder="Nhập mật khẩu mới (nếu muốn thay đổi)">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveEditUser">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -698,6 +851,7 @@
 <script src="/js/authors.js" defer></script>
 <script src="/js/publishers.js" defer></script>
 <script src="/js/categories.js" defer></script>
+
 
 
 

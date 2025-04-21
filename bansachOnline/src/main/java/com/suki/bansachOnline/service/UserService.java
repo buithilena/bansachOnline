@@ -82,4 +82,5 @@ public class UserService {
                 user.getPhoneNumber() != null &&
                 user.getPassword() != null;
     }
+
 }

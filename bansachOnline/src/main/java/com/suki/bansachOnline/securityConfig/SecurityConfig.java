@@ -33,7 +33,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/dangkyaccount", "/register", "/save-profile", "/update-price", "/api/quanly/**", "/products", "/inventory-by-product/{productId}", "/","/giohang","/book/**",
-                                "/image/**", "/css/**", "/js/**", "/logonewT.png", "/sanpham", "/product-images/**", "/cart/**", "/products-by-doituong", "/quanly", "/api/login", "/api/quanly/**").permitAll() // Thêm /api/login
+                                "/image/**", "/css/**", "/js/**", "/logonewT.png", "/sanpham", "/product-images/**", "/cart/**", "/products-by-doituong", "/quanly", "/api/login", "/api/quanly/**","/api/quanly/users/**").permitAll() // Thêm /api/login
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
