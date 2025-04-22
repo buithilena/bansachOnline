@@ -836,6 +836,63 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Quản lý đơn hàng -->
+    <div class="container-fluid content-section" id="orders" style="display: none;">
+        <h3 class="mt-5">Danh sách đơn hàng</h3>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="search-orders" placeholder="Tìm kiếm đơn hàng...">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="orders-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Người dùng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="orders-tbody"></tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="orders-pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Modal Sửa Đơn Hàng -->
+    <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editOrderModalLabel">Sửa Thông Tin Đơn Hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editOrderForm">
+                        <input type="hidden" id="edit_order_id">
+                        <div class="mb-3">
+                            <label for="edit_order_status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                            <select class="form-control" id="edit_order_status" required>
+                                <option value="PENDING">Chờ xử lý</option>
+                                <option value="COMPLETED">Hoàn thành</option>
+                                <option value="CANCELED">Hủy</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveEditOrder">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -851,9 +908,6 @@
 <script src="/js/authors.js" defer></script>
 <script src="/js/publishers.js" defer></script>
 <script src="/js/categories.js" defer></script>
-
-
-
 
 </body>
 </html>

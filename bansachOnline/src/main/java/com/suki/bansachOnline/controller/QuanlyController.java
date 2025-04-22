@@ -354,4 +354,46 @@ public class QuanlyController {
         response.put("totalItems", userPage.getTotalElements());
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/orders")
+    public ResponseEntity<Map<String, Object>> getAllOrders(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search) {
+        Page<Order> orderPage = quanlyService.getAllOrders(page, size, search);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", orderPage.getContent());
+        response.put("totalPages", orderPage.getTotalPages());
+        response.put("currentPage", orderPage.getNumber() + 1);
+        response.put("totalItems", orderPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Integer id) {
+        Optional<Order> order = quanlyService.getOrderById(id);
+        return order.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
+        boolean deleted = quanlyService.deleteOrder(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/orders/{id}")
+    public ResponseEntity<Order> updateOrder(@PathVariable Integer id, @RequestBody Order order) {
+        Order updatedOrder = quanlyService.updateOrder(id, order);
+        if (updatedOrder != null) {
+            return ResponseEntity.ok(updatedOrder);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 }

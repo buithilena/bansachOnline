@@ -21,10 +21,14 @@ public class GioHangService {
     private final BookService bookService;
     private final DonViGiaRepository donViGiaRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(GioHangService.class);
+
     public Cart getOrCreateCart(User user, HttpSession session) {
         if (user != null) {
+            logger.info("Tìm giỏ hàng cho user: {}", user.getId());
             return cartRepository.findByUser(user)
                     .orElseGet(() -> {
+                        logger.info("Tạo giỏ hàng mới cho user: {}", user.getId());
                         Cart cart = new Cart();
                         cart.setUser(user);
                         cart.setSessionId(session.getId());
@@ -32,15 +36,16 @@ public class GioHangService {
                     });
         } else {
             String sessionId = session.getId();
+            logger.info("Tìm giỏ hàng cho session: {}", sessionId);
             return cartRepository.findBySessionId(sessionId)
                     .orElseGet(() -> {
+                        logger.info("Tạo giỏ hàng mới cho session: {}", sessionId);
                         Cart cart = new Cart();
                         cart.setSessionId(sessionId);
                         return cartRepository.save(cart);
                     });
         }
     }
-
     public Cart addToCart(User user, HttpSession session, int productId, int donViTinhId, int quantity) {
         Cart cart = getOrCreateCart(user, session);
         Book book = bookService.getBookById(productId);

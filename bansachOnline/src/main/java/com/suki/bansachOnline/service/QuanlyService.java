@@ -41,6 +41,12 @@ public class QuanlyService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OrdersRepository orderRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // Các phương thức hiện có cho tác giả, nhà xuất bản, danh mục, đối tượng không cần sửa
@@ -360,6 +366,36 @@ public class QuanlyService {
         }
         return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search, pageable);
     }
+    public Page<Order> getAllOrders(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        if (search == null || search.isEmpty()) {
+            return orderRepository.findAll(pageable);
+        }
+        return orderRepository.findByUserNameContainingIgnoreCaseOrUserEmailContainingIgnoreCase(search, search, pageable);
+    }
+
+    public Optional<Order> getOrderById(Integer id) {
+        return orderRepository.findById(id);
+    }
+
+    @Transactional
+    public boolean deleteOrder(Integer id) {
+        if (orderRepository.existsById(id)) {
+            orderDetailRepository.deleteByOrderId(id); // Xóa chi tiết đơn hàng trước
+            orderRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public Order updateOrder(Integer id, Order order) {
+        if (!orderRepository.existsById(id)) {
+            return null;
+        }
+        Order existingOrder = orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Đơn hàng không tồn tại"));
+        existingOrder.setStatus(order.getStatus());
+        return orderRepository.save(existingOrder);
+    }
 }
-
-

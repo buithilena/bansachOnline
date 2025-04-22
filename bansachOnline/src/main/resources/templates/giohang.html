@@ -489,84 +489,106 @@
                 return;
             }
 
-            // Thu thập danh sách sản phẩm đã chọn
-            let selectedItems = [];
-            let totalAmount = 0;
-            $('input[id^="item-checkbox-"]:checked').each(function() {
-                let bookId = $(this).data('product-id');
-                let unitId = $(this).data('unit-id');
-                let quantity = parseInt($('#quantity-' + bookId + '-' + unitId).val());
-                let priceText = $('#price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
-                let itemTotalPrice = parseFloat(priceText);
-                totalAmount += itemTotalPrice;
+            // Lấy user_id từ API /cart/identifiers
+            $.ajax({
+                url: '/cart/identifiers',
+                type: 'GET',
+                headers: {
+                    [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                },
+                success: function(response) {
+                    let userId = response.user_id;
 
-                selectedItems.push({
-                    productId: bookId,
-                    donViTinhId: unitId,
-                    quantity: quantity,
-                    price: itemTotalPrice / quantity
-                });
+                    // Thu thập danh sách sản phẩm đã chọn
+                    let selectedItems = [];
+                    let totalAmount = 0;
+                    $('input[id^="item-checkbox-"]:checked').each(function() {
+                        let bookId = $(this).data('product-id');
+                        let unitId = $(this).data('unit-id');
+                        let quantity = parseInt($('#quantity-' + bookId + '-' + unitId).val());
+                        let priceText = $('#price-' + bookId + '-' + unitId).text().replace(/[^0-9]/g, '');
+                        let itemTotalPrice = parseFloat(priceText);
+                        totalAmount += itemTotalPrice;
+
+                        selectedItems.push({
+                            productId: bookId,
+                            donViTinhId: unitId,
+                            quantity: quantity,
+                            price: itemTotalPrice / quantity
+                        });
+                    });
+
+                    // Chuẩn bị dữ liệu đơn hàng
+                    let orderData = {
+                        customerName: customerName,
+                        customerPhone: customerPhone,
+                        customerAddress: customerAddress,
+                        paymentMethod: paymentMethod,
+                        items: selectedItems,
+                        totalAmount: totalAmount,
+                        userId: userId // Thêm user_id vào orderData
+                    };
+
+                    if (paymentMethod === 'payos') {
+                        // Xử lý thanh toán qua PayOS
+                        $.ajax({
+                            url: '/thanhtoan/payos',
+                            type: 'POST',
+                            headers: {
+                                [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                            },
+                            contentType: 'application/json',
+                            data: JSON.stringify(orderData),
+                            success: function(response) {
+                                if (response.success && response.checkoutUrl) {
+                                    window.location.href = response.checkoutUrl;
+                                } else {
+                                    alert('Không thể tạo link thanh toán: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Error creating PayOS payment:', xhr);
+                                alert('Đã có lỗi xảy ra khi tạo link thanh toán.');
+                            }
+                        });
+                    } else {
+                        // Xử lý các phương thức thanh toán khác (COD, bank)
+                        $.ajax({
+                            url: '/thanhtoan',
+                            type: 'POST',
+                            headers: {
+                                [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                            },
+                            contentType: 'application/json',
+                            data: JSON.stringify(orderData),
+                            success: function(response) {
+                                if (response.success) {
+                                    alert('Đặt hàng thành công!');
+                                    window.location.href = '/order-confirmation';
+                                } else {
+                                    alert('Đặt hàng thất bại: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Error placing order:', xhr);
+                                alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+                            }
+                        });
+                    }
+
+                    $('#checkoutModal').modal('hide');
+                },
+                error: function(xhr) {
+                    console.error('Error fetching cart identifiers:', xhr);
+                    alert('Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại.');
+                }
             });
-
-            // Chuẩn bị dữ liệu đơn hàng
-            let orderData = {
-                customerName: customerName,
-                customerPhone: customerPhone,
-                customerAddress: customerAddress,
-                paymentMethod: paymentMethod,
-                items: selectedItems,
-                totalAmount: totalAmount
-            };
-
-            if (paymentMethod === 'payos') {
-                // Xử lý thanh toán qua PayOS
-                $.ajax({
-                    url: '/thanhtoan/payos',
-                    type: 'POST',
-                    headers: {
-                        [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
-                    },
-                    contentType: 'application/json',
-                    data: JSON.stringify(orderData),
-                    success: function(response) {
-                        if (response.success && response.checkoutUrl) {
-                            window.location.href = response.checkoutUrl;
-                        } else {
-                            alert('Không thể tạo link thanh toán: ' + response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('Error creating PayOS payment:', xhr);
-                        alert('Đã có lỗi xảy ra khi tạo link thanh toán.');
-                    }
-                });
-            } else {
-                // Xử lý các phương thức thanh toán khác (COD, bank)
-                $.ajax({
-                    url: '/thanhtoan',
-                    type: 'POST',
-                    headers: {
-                        [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
-                    },
-                    contentType: 'application/json',
-                    data: JSON.stringify(orderData),
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Đặt hàng thành công!');
-                            window.location.href = '/order-confirmation';
-                        } else {
-                            alert('Đặt hàng thất bại: ' + response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('Error placing order:', xhr);
-                        alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
-                    }
-                });
-            }
-
-            $('#checkoutModal').modal('hide');
         });
+
+
+
+
+
     });
 </script>
 </body>
