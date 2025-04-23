@@ -140,7 +140,6 @@
 
     </div>
 
-
     <!-- JavaScript cho countdown timer -->
     <!-- JavaScript cho countdown timer và addToCart -->
     <script th:inline="javascript">
@@ -383,6 +382,13 @@
             }
         });
     }
+    $(document).ready(function() {
+        // Kiểm tra tham số showLogin trong URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showLogin') === 'true') {
+            $('#loginModal').modal('show');
+        }
+    });
 </script>
 
 
