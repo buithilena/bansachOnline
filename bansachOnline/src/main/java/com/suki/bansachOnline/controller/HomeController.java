@@ -3,6 +3,7 @@ package com.suki.bansachOnline.controller;
 import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.service.BookService;
 import com.suki.bansachOnline.service.GioHangService;
+import com.suki.bansachOnline.service.QuanlyService;
 import com.suki.bansachOnline.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,9 +33,13 @@ public class HomeController {
     @Autowired
     private GioHangService gioHangService; // Thêm GioHangService
 
+    @Autowired
+    private QuanlyService quanlyService;
+
     @GetMapping("/")
     public String home(Model model,
                        @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(value = "categoryId", required = false) Integer categoryId,
                        @AuthenticationPrincipal OAuth2User oAuth2User,
                        HttpSession session) {
         User loggedInUser = null;
@@ -59,22 +64,32 @@ public class HomeController {
         List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
         model.addAttribute("flashSaleBooks", flashSaleBooks);
 
-        // Thêm thông tin giỏ hàng vào model để sử dụng trong header
+        List<DanhMuc> danhMucList = quanlyService.getAllDanhMuc();
+        model.addAttribute("danhMucList", danhMucList);
+
+        // Thêm thông tin giỏ hàng vào model
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("cartItemCount", cartItemCount);
 
         // Logic sách và đối tượng
         Pageable pageable = PageRequest.of(page, 12); // Hiển thị 12 sách mỗi trang
-        Page<Book> bookPage = bookService.getBooks(pageable);
+        Page<Book> bookPage;
+        if (categoryId != null && categoryId > 0) {
+            bookPage = bookService.getBooksByCategory(categoryId, pageable);
+        } else {
+            bookPage = bookService.getBooks(pageable);
+        }
         List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
 
         model.addAttribute("books", bookPage.getContent());
         model.addAttribute("totalPages", bookPage.getTotalPages());
         model.addAttribute("currentPage", page);
         model.addAttribute("doiTuongList", doiTuongList);
+        model.addAttribute("categoryId", categoryId); // Để giữ trạng thái danh mục được chọn
 
         return "trangchu"; // USER hoặc không đăng nhập vào trang chủ
     }
+
 
     @GetMapping("/quanly")
     public String quanLy(Model model,

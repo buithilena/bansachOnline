@@ -65,17 +65,19 @@
                     </div>
                 </div>
 
+
                 <!-- Thanh tìm kiếm -->
                 <div class="col-sm-6 col-lg-5 d-none d-lg-block">
                     <div class="search-barhome">
-                        <select class="form-select">
-                            <option>Danh Mục Sách</option>
-                            <option>Sách Văn Học</option>
-                            <option>Sách Khoa Học</option>
-                            <option>Sách Thiếu Nhi</option>
-                        </select>
-                        <form id="search-form" action="/search" method="get">
+                        <select class="form-select" name="categoryId" id="categorySelect" onchange="filterByCategory(this.value)">
+                            <option value="" th:selected="${categoryId == null}">Danh Mục Sách</option>
+                            <option th:each="danhMuc : ${danhMucList}"
+                                    th:value="${danhMuc.id}"
+                                    th:text="${danhMuc.tenDanhMuc}"
+                                    th:selected="${categoryId != null and categoryId == danhMuc.id}"></option>
+                        </select>                        <form id="search-form" action="/search" method="get">
                             <input type="text" name="query" placeholder="Tìm Kiếm">
+                            <input type="hidden" name="categoryId" id="categoryIdInput">
                         </form>
                         <button type="submit" class="search-button" form="search-form">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -84,7 +86,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="col-sm-8 col-lg-4 d-flex justify-content-end align-items-center gap-4">
                     <div class="support-box d-none d-xl-block">
                         <span class="fs-6 text-muted">Liên hệ?</span>
@@ -255,7 +256,18 @@
                 }
             });
         }
+
+        document.querySelector('#categorySelect').addEventListener('change', function() {
+            document.getElementById('categoryIdInput').value = this.value;
+        });
+        function filterByCategory(categoryId) {
+            // Nếu chọn "Danh Mục Sách" (categoryId rỗng), tải lại trang chủ không có bộ lọc
+            if (categoryId === "") {
+                window.location.href = "/";
+            } else {
+                // Chuyển hướng đến trang chủ với tham số categoryId
+                window.location.href = "/?categoryId=" + categoryId;
+            }
+        }
     </script>
-
-
 </div>

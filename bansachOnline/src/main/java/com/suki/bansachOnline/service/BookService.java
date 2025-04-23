@@ -88,6 +88,15 @@ public class BookService {
         return flashSaleBooks;
     }
 
+    // Phương thức hiện có
+
+
+    // Thêm phương thức mới
+    public Page<Book> getBooksByCategory(Integer categoryId, Pageable pageable) {
+        return bookRepository.findByDanhMucId(categoryId, pageable);
+    }
+
+
 
 
 

@@ -114,6 +114,19 @@ public class QuanlyService {
         return danhMucRepository.findById(id);
     }
 
+
+//    public List<Book> searchBooks(String query, Integer categoryId) {
+//        query = query == null ? "" : query.trim();
+//        if (categoryId != null && !query.isEmpty()) {
+//            return bookRepository.findByTenSachContainingIgnoreCaseAndDanhMucId(query, categoryId);
+//        } else if (categoryId != null) {
+//            return bookRepository.findByDanhMucId(categoryId);
+//        } else if (!query.isEmpty()) {
+//            return bookRepository.findByTenSachContainingIgnoreCase(query);
+//        } else {
+//            return bookRepository.findAllWithDetails();
+//        }
+//    }
     public DanhMuc addDanhMuc(DanhMuc danhMuc) {
         return danhMucRepository.save(danhMuc);
     }
