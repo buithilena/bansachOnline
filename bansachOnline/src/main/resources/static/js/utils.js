@@ -4,14 +4,14 @@ class Utils {
         const defaultOptions = {
             timer: 1500,
             showConfirmButton: false,
-            ...options // Ghi đè các tùy chọn mặc định nếu có
+            ...options
         };
 
         if (typeof Swal !== 'undefined') {
             Swal.fire({ icon, title, text, ...defaultOptions });
         } else {
             console.warn(`SweetAlert2 không khả dụng. Dữ liệu: ${title} - ${text}`);
-            alert(`${title}: ${text}`); // Fallback khi SweetAlert2 không tải
+            alert(`${title}: ${text}`);
         }
     }
 
@@ -43,12 +43,10 @@ class Utils {
                     $select.append(`<option value="${danhMuc.id}">${danhMuc.tenDanhMuc}</option>`);
                 });
 
-                // Thêm tùy chọn "Thêm danh mục mới" nếu được yêu cầu
                 if (addNewOption) {
                     $select.append('<option value="add-category">Thêm danh mục mới...</option>');
                 }
 
-                // Gọi callback nếu có
                 if (typeof onSuccess === 'function') {
                     onSuccess(data);
                 }
@@ -83,6 +81,35 @@ class Utils {
                 callback();
             }
         }
+    }
+
+    // Hiển thị phân trang
+    static renderPagination(totalPages, currentPage, section) {
+        const $pagination = $(`#${section}-pagination`);
+        $pagination.empty();
+
+        // Thêm nút Previous
+        $pagination.append(`
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+            </li>
+        `);
+
+        // Thêm các nút số trang
+        for (let i = 1; i <= totalPages; i++) {
+            $pagination.append(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+        }
+
+        // Thêm nút Next
+        $pagination.append(`
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+            </li>
+        `);
     }
 }
 

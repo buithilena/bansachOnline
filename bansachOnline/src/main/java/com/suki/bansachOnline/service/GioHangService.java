@@ -61,7 +61,7 @@ public class GioHangService {
         Optional<CartItem> existingItem = cartItemRepository.findByCartAndBookAndDonViGia(cart, book, donViGia);
         if (existingItem.isPresent()) {
             CartItem cartItem = existingItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cartItem.setQuantity(quantity); // Cập nhật số lượng thành giá trị mới
             cartItem.setPrice(cartItem.calculatePrice());
             cartItemRepository.save(cartItem);
         } else {
@@ -78,7 +78,6 @@ public class GioHangService {
         cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
-
     public int getCartItemCount(Cart cart) {
         return cart.getCartItems().stream().mapToInt(CartItem::getQuantity).sum();
     }

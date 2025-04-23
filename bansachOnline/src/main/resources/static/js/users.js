@@ -1,4 +1,3 @@
-// js/users.js
 $(document).ready(function () {
     loadUsers();
 
@@ -11,7 +10,7 @@ $(document).ready(function () {
                 console.log('Phản hồi API:', response); // Ghi log để kiểm tra
                 if (response && response.data && Array.isArray(response.data)) {
                     renderUsers(response.data);
-                    renderPagination(response.totalPages, page, 'users');
+                    Utils.renderPagination(response.totalPages, page, 'users'); // Sửa dòng này
                 } else {
                     console.error('Phản hồi không đúng định dạng:', response);
                     Swal.fire('Lỗi', 'Dữ liệu trả về không đúng định dạng!', 'error');
@@ -49,7 +48,6 @@ $(document).ready(function () {
             `);
         });
     }
-
 
     // Thêm người dùng
     $('#saveUser').click(function () {
@@ -161,5 +159,15 @@ $(document).ready(function () {
     // Tìm kiếm người dùng
     $('#search-users').on('input', function () {
         loadUsers(1, $(this).val());
+    });
+
+    // Xử lý sự kiện click cho phân trang
+    $(document).on('click', '#users-pagination .page-link', function(e) {
+        e.preventDefault();
+        const page = $(this).data('page');
+        const search = $('#search-users').val();
+        if (page) {
+            loadUsers(page, search);
+        }
     });
 });
