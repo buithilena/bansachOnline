@@ -1,12 +1,19 @@
 package com.suki.bansachOnline.controller;
 
 
+import com.suki.bansachOnline.model.Cart;
+import com.suki.bansachOnline.model.Order;
 import com.suki.bansachOnline.model.User;
+
 import com.suki.bansachOnline.respository.OrdersRepository;
 import com.suki.bansachOnline.respository.UserRepository;
+import com.suki.bansachOnline.service.GioHangService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +36,9 @@ public class PaymentController {
     private final UserRepository userRepository;
 
     @Autowired
+    private GioHangService gioHangService;
+
+    @Autowired
     public PaymentController(PayOS payOS, OrdersRepository ordersRepository, UserRepository userRepository) {
         this.payOS = payOS;
         this.ordersRepository = ordersRepository;
@@ -37,7 +47,11 @@ public class PaymentController {
 
     @PostMapping(value = "/payos", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> createPayOSPayment(@RequestBody Map<String, Object> orderData, HttpServletRequest request) {
+    public Map<String, Object> createPayOSPayment(
+            @RequestBody Map<String, Object> orderData,
+            @AuthenticationPrincipal Object principal,
+            HttpServletRequest request,
+            HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
             String customerName = (String) orderData.get("customerName");
@@ -85,23 +99,26 @@ public class PaymentController {
             CheckoutResponseData data = payOS.createPaymentLink(paymentData);
 
             // Lưu thông tin đơn hàng
-            Orders order = new Orders();
+            Order order = new Order();
             order.setOrderDate(LocalDateTime.now());
             order.setTotalPrice(new BigDecimal(totalAmount));
-            order.setStatus(Orders.OrderStatus.pending);
+            order.setStatus(Order.OrderStatus.pending);
             order.setCustomerName(customerName);
             order.setCustomerPhone(customerPhone);
             order.setCustomerAddress(customerAddress);
             order.setPaymentMethod("payos");
 
-            // Lấy user từ session hoặc email
-            String email = request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : null;
-            if (email != null) {
-                User user = userRepository.findByEmail(email).orElse(null);
-                if (user != null) {
-                    order.setUserId(user.getId()); // Lưu UUID trực tiếp
+            // Lấy thông tin người dùng
+            User user = getUserFromPrincipal(principal);
+            if (user != null) {
+                order.setUserId(user.getId());
+            } else {
+                // Kiểm tra giỏ hàng để lấy thông tin người dùng (nếu có)
+                Cart cart = gioHangService.getOrCreateCart(null, session);
+                if (cart.getUser() != null) {
+                    order.setUserId(cart.getUser().getId());
                 }
-            } // Nếu không có user, userId sẽ là null (khách vãng lai)
+            }
 
             ordersRepository.save(order);
 
@@ -116,15 +133,30 @@ public class PaymentController {
         return response;
     }
 
+    private User getUserFromPrincipal(Object principal) {
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            org.springframework.security.core.userdetails.UserDetails userDetails = (org.springframework.security.core.userdetails.UserDetails) principal;
+            return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        } else if (principal instanceof OAuth2User) {
+            OAuth2User oAuth2User = (OAuth2User) principal;
+            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+            return "google".equals(provider) ? userRepository.findByGoogleId(providerId).orElse(null)
+                    : userRepository.findByFacebookId(providerId).orElse(null);
+        }
+        return null;
+    }
+
+
     // Trang thành công
     @GetMapping("/success")
     public String success(@RequestParam(value = "orderCode", required = false) String orderCode, Model model) {
         try {
             if (orderCode != null) {
                 // Cập nhật trạng thái đơn hàng
-                Orders order = ordersRepository.findById(Integer.parseInt(orderCode)).orElse(null);
+                Order order = ordersRepository.findById(Integer.parseInt(orderCode)).orElse(null);
                 if (order != null) {
-                    order.setStatus(Orders.OrderStatus.completed);
+                    order.setStatus(Order.OrderStatus.completed);
                     ordersRepository.save(order);
                 }
             }

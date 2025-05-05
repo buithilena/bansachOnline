@@ -60,3 +60,47 @@ $(document).ready(function() {
 
 $(document).ready(() => new SidebarManager());
 
+function confirmLogout() {
+    Swal.fire({
+        title: 'Bạn có chắc chắn muốn đăng xuất?',
+        text: "Bạn sẽ được chuyển về trang đăng nhập!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Đăng xuất',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi yêu cầu đăng xuất
+            $.ajax({
+                url: '/logout',
+                type: 'POST',
+                headers: {
+                    [document.querySelector("meta[name='_csrf_header']").getAttribute("content")]:
+                        document.querySelector("meta[name='_csrf']").getAttribute("content")
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Đăng xuất thành công!',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Chuyển hướng về trang chủ với tham số showLogin=true
+                        window.location.href = '/?showLogin=true';
+                    });
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        text: 'Đã xảy ra lỗi khi đăng xuất. Vui lòng thử lại.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    });
+}
+

@@ -1,5 +1,6 @@
 package com.suki.bansachOnline.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "book")
@@ -23,9 +25,6 @@ public class Book {
     @Column(name = "mo_ta_ngan")
     private String moTaNgan;
 
-    @Column(name = "nha_xuat_ban")
-    private String nhaXuatBan;
-
     @Column(name = "nam_xuat_ban")
     private Integer namXuatBan;
 
@@ -38,46 +37,51 @@ public class Book {
     @Column(name = "ten_sach", nullable = false)
     private String tenSach;
 
-    @Column(name = "tac_gia")
-    private String tacGia;
-
     @Column(name = "thuong_hieu")
     private String thuongHieu;
 
     @Column(name = "ngon_ngu")
     private String ngonNgu;
 
-    @Column(name = "danhmuc_id")
-    private Integer danhmucId;
-
-    @Column(name = "doi_tuong_id")
-    private Integer doiTuongId;
+    @ManyToOne
+    @JoinColumn(name = "nhaxuatban_id")
+    private NhaXuatBan nhaXuatBan;
 
     @ManyToOne
-    @JoinColumn(name = "danhmuc_id", insertable = false, updatable = false)
+    @JoinColumn(name = "tacgia_id")
+    private TacGia tacGia;
+
+    @ManyToOne
+    @JoinColumn(name = "danhmuc_id")
     private DanhMuc danhMuc;
 
     @ManyToOne
-    @JoinColumn(name = "doi_tuong_id", insertable = false, updatable = false)
+    @JoinColumn(name = "doi_tuong_id")
     private DoiTuong doiTuong;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<DonViGia> donViGias;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<BookImage> bookImages = new HashSet<>();
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<BookImage> bookImages;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<DonViGia> donViGias = new HashSet<>();
 
     public boolean hasDiscount() {
-        return donViGias != null && !donViGias.isEmpty() && donViGias.get(0).getDiscount() > 0;
+        return donViGias != null && !donViGias.isEmpty() && donViGias.iterator().next().getDiscount() > 0;
     }
 
     public DonViGia getDefaultDonViTinh() {
-        return donViGias != null && !donViGias.isEmpty() ? donViGias.get(0) : null;
+        return donViGias != null && !donViGias.isEmpty() ? donViGias.iterator().next() : null;
     }
 
     public String getMainImageUrl() {
         return bookImages != null && !bookImages.isEmpty() ?
-                bookImages.stream().filter(BookImage::getIsMain).findFirst().map(BookImage::getImageUrl).orElse("/images/placeholder.png")
+                bookImages.stream()
+                        .filter(BookImage::getIsMain)
+                        .findFirst()
+                        .map(BookImage::getImageUrl)
+                        .orElse("/images/placeholder.png")
                 : "/images/placeholder.png";
     }
 

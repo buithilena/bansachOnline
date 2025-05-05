@@ -19,11 +19,18 @@ public class JwtUtil {
     private long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 giờ
 
     // Tạo JWT token
+//    public String generateToken(User user) {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("role", user.getRole());
+//        claims.put("email", user.getEmail());
+//        return createToken(claims, user.getEmail());
+//    }
+
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole());
-        claims.put("email", user.getEmail());
-        return createToken(claims, user.getEmail());
+        claims.put("sub", user.getEmail() != null ? user.getEmail() : user.getPhoneNumber());
+        return createToken(claims, user.getEmail() != null ? user.getEmail() : user.getPhoneNumber());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -35,6 +42,7 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
+
 
     // Xác thực token
     public Boolean validateToken(String token, String email) {

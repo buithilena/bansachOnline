@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -17,8 +19,6 @@
             language-code="en"
     ></df-messenger>
     <link rel="stylesheet" href="/css/trangchu.css">
-
-
 </head>
 <body>
 <!-- Import Header -->
@@ -39,11 +39,12 @@
             <div class="product-list">
                 <div class="product-card" th:each="product : ${books}">
                     <div class="card border rounded shadow-sm d-flex flex-column h-100">
-        <span class="badge bg-danger position-absolute discount-badge"
-              th:id="'discount-badge-' + ${product.id}"
-              th:style="${product.hasDiscount()} ? '' : 'display: none;'"
-              th:text="'-' + ${#numbers.formatDecimal(product.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>
-                        <img th:src="${product.mainImageUrl ?: '/images/placeholder.png'}" class="card-img-top" th:alt="${product.tenSach}">
+                        <span class="badge bg-danger position-absolute discount-badge"
+                              th:id="'discount-badge-' + ${product.id}"
+                              th:style="${product.hasDiscount()} ? '' : 'display: none;'"
+                              th:text="'-' + ${#numbers.formatDecimal(product.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>
+                        <img th:src="${product.mainImageUrl != null} ? ${product.mainImageUrl} : '/images/placeholder.png'"
+                             class="card-img-top" th:alt="${product.tenSach}">
                         <div class="card-body text-center d-flex flex-column">
                             <a th:href="@{/book/sanpham(id=${product.id})}" class="card-title text-decoration-none">
                                 <h6 th:text="${product.tenSach}"></h6>
@@ -76,20 +77,18 @@
         <nav aria-label="Page navigation" class="mt-4" th:if="${totalPages > 1}">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link" th:href="@{/(page=${currentPage - 1})}">Previous</a>
+                    <a class="page-link" th:href="@{/(page=${currentPage - 1}, categoryId=${categoryId})}">Previous</a>
                 </li>
                 <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                     th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/(page=${i})}" th:text="${i + 1}"></a>
+                    <a class="page-link" th:href="@{/(page=${i}, categoryId=${categoryId})}" th:text="${i + 1}"></a>
                 </li>
                 <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/(page=${currentPage + 1})}">Next</a>
+                    <a class="page-link" th:href="@{/(page=${currentPage + 1}, categoryId=${categoryId})}">Next</a>
                 </li>
             </ul>
         </nav>
     </div>
-
-
 
     <!-- Phần Flash Sale -->
     <div class="container py-4 flash-sale-section">
@@ -104,10 +103,12 @@
             <div class="product-list">
                 <div class="product-card" th:each="book : ${flashSaleBooks}">
                     <div class="card border rounded shadow-sm d-flex flex-column h-100">
-            <span class="badge bg-danger position-absolute discount-badge"
-                  th:id="'discount-badge-' + ${book.id}"
-                  th:style="${book.hasDiscount()} ? '' : 'display: none;'"
-                  th:text="'-' + ${#numbers.formatDecimal(book.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>                        <img th:src="${book.mainImageUrl ?: '/images/placeholder.png'}" class="card-img-top" th:alt="${book.tenSach}">
+                        <span class="badge bg-danger position-absolute discount-badge"
+                              th:id="'discount-badge-' + ${book.id}"
+                              th:style="${book.hasDiscount()} ? '' : 'display: none;'"
+                              th:text="'-' + ${#numbers.formatDecimal(book.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>
+                        <img th:src="${book.mainImageUrl != null} ? ${book.mainImageUrl} : '/images/placeholder.png'"
+                             class="card-img-top" th:alt="${book.tenSach}">
                         <div class="card-body text-center d-flex flex-column">
                             <a th:href="@{/book/sanpham(id=${book.id})}" class="card-title text-decoration-none">
                                 <h6 th:text="${book.tenSach}"></h6>
@@ -119,13 +120,11 @@
                                 <div th:id="'original-price-' + ${book.id}" class="original-price"
                                      th:style="${book.hasDiscount()} ? '' : 'display: none;'"
                                      th:data-price="${book.getDefaultDonViTinh()?.gia ?: 0}"
-                                     th:text="${#numbers.formatDecimal(book.getDefaultDonViTinh().gia, 0, 0)} + 'đ'">
-
-                                </div>
+                                     th:text="${#numbers.formatDecimal(book.getDefaultDonViTinh().gia, 0, 0)} + 'đ'"></div>
                             </div>
                             <button class="btn btn-primary w-100 mt-auto"
                                     th:onclick="'addToCart(' + ${book.id} + ')'">
-                                Thêm vào giỏ hàng 
+                                Thêm vào giỏ hàng
                             </button>
                         </div>
                     </div>
@@ -136,173 +135,7 @@
                 </div>
             </div>
         </div>
-
-
     </div>
-
-
-    <!-- JavaScript cho countdown timer -->
-    <!-- JavaScript cho countdown timer và addToCart -->
-    <script th:inline="javascript">
-        // Countdown timer cho Flash Sale (kết thúc sau 24 giờ)
-        function startCountdown() {
-            const countdownElement = document.getElementById('flash-sale-countdown');
-            if (!countdownElement) return;
-
-            const endTime = new Date().getTime() + 24 * 60 * 60 * 1000; // 24 giờ từ bây giờ
-
-            const updateCountdown = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = endTime - now;
-
-                if (distance < 0) {
-                    clearInterval(updateCountdown);
-                    countdownElement.innerHTML = 'Flash Sale đã kết thúc!';
-                    return;
-                }
-
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                countdownElement.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s`;
-            }, 1000);
-        }
-
-        // Khởi động countdown khi trang tải
-        document.addEventListener('DOMContentLoaded', startCountdown);
-
-        // Hàm addToCart
-        function addToCart(bookId, donViGiaId) {
-            var token = $("meta[name='_csrf']").attr("content");
-            var header = $("meta[name='_csrf_header']").attr("content");
-
-            // Nếu donViGiaId không được cung cấp (trường hợp danh sách sản phẩm), đặt mặc định là 0
-            donViGiaId = donViGiaId || 0;
-
-            $.ajax({
-                url: '/api/check-auth',
-                type: 'GET',
-                success: function(auth) {
-                    if (!auth.isAuthenticated) {
-                        Toastify({
-                            text: "Vui lòng đăng nhập!",
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: "#dc3545",
-                            stopOnFocus: true
-                        }).showToast();
-                        window.location.href = '/login';
-                    } else {
-                        addToCartAjax(bookId, donViGiaId);
-                    }
-                },
-                error: function() {
-                    Toastify({
-                        text: "Lỗi kiểm tra đăng nhập!",
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "#dc3545",
-                        stopOnFocus: true
-                    }).showToast();
-                    window.location.href = '/login';
-                }
-            });
-        }
-
-        function addToCartAjax(bookId, donViGiaId) {
-            var quantity = $('#quantity').val() ? parseInt($('#quantity').val()) : 1;
-            if (isNaN(quantity) || quantity < 1) {
-                Toastify({
-                    text: "Số lượng không hợp lệ!",
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#dc3545",
-                    stopOnFocus: true
-                }).showToast();
-                return;
-            }
-
-            var token = $("meta[name='_csrf']").attr("content");
-            var header = $("meta[name='_csrf_header']").attr("content");
-
-            $.ajax({
-                url: '/cart/add',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    productId: bookId,
-                    donViGiaId: donViGiaId,
-                    quantity: quantity
-                }),
-                beforeSend: function(xhr) {
-                    if (token && header) {
-                        xhr.setRequestHeader(header, token);
-                    }
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Toastify({
-                            text: "Đã thêm sản phẩm vào giỏ hàng!",
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: "#28a745",
-                            stopOnFocus: true
-                        }).showToast();
-                        if (response.cartCount !== undefined) {
-                            $('.cart-count').text(response.cartCount);
-                        }
-                    } else {
-                        Toastify({
-                            text: response.message || "Lỗi khi thêm sản phẩm vào giỏ hàng!",
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: "#dc3545",
-                            stopOnFocus: true
-                        }).showToast();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Toastify({
-                        text: "Lỗi khi thêm sản phẩm: " + (xhr.responseText || error),
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "#dc3545",
-                        stopOnFocus: true
-                    }).showToast();
-                }
-            });
-        }
-
-        function updatePrice(bookId, donViGiaId) {
-            $.ajax({
-                url: '/book/update-price',
-                type: 'GET',
-                data: { bookId: bookId, donViGiaId: donViGiaId },
-                success: function(response) {
-                    $('#discounted-price-' + bookId).text(Number(response.discountedPrice).toLocaleString('vi-VN') + 'đ');
-                    if (response.hasDiscount) {
-                        $('#original-price-' + bookId).text(Number(response.gia).toLocaleString('vi-VN') + 'đ').show();
-                        $('#discount-badge-' + bookId).text('-' + Number(response.discount) + '%').show();
-                    } else {
-                        $('#original-price-' + bookId).hide();
-                        $('#discount-badge-' + bookId).hide();
-                    }
-                    $('.unit-btn-group button').removeClass('active');
-                    $('#unit-btn-' + bookId + '-' + donViGiaId).addClass('active');
-                },
-                error: function(xhr, status, error) {
-                    console.error('Lỗi khi cập nhật giá:', error);
-                }
-            });
-        }
-    </script>
 </main>
 
 <!-- Import Footer -->
@@ -310,15 +143,41 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script th:inline="javascript">
+    // Countdown timer cho Flash Sale
+    function startCountdown() {
+        const countdownElement = document.getElementById('flash-sale-countdown');
+        if (!countdownElement) return;
+
+        const endTime = new Date().getTime() + 24 * 60 * 60 * 1000; // 24 giờ từ bây giờ
+
+        const updateCountdown = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(updateCountdown);
+                countdownElement.innerHTML = 'Flash Sale đã kết thúc!';
+                return;
+            }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownElement.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s`;
+        }, 1000);
+    }
+
+    // Hàm addToCart
     function addToCart(bookId) {
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
 
         $.ajax({
             url: '/cart/add',
             type: 'POST',
             headers: {
-                [header]: token // Thêm CSRF token vào header
+                [header]: token
             },
             data: {
                 productId: bookId,
@@ -335,7 +194,6 @@
                         backgroundColor: "#28a745",
                         stopOnFocus: true
                     }).showToast();
-
                     $('.cart-count').text(response.cartItemCount);
                 } else {
                     Toastify({
@@ -348,9 +206,9 @@
                     }).showToast();
                 }
             },
-            error: function(xhr, status, error) {
+            error: function(xhr) {
                 Toastify({
-                    text: "Lỗi khi thêm sản phẩm: " + xhr.responseText,
+                    text: "Lỗi khi thêm sản phẩm: " + (xhr.responseText || "Không xác định"),
                     duration: 3000,
                     gravity: "top",
                     position: "right",
@@ -361,6 +219,7 @@
         });
     }
 
+    // Hàm updatePrice
     function updatePrice(bookId, donViGiaId) {
         $.ajax({
             url: '/book/update-price',
@@ -378,13 +237,22 @@
                 $('.unit-btn-group button').removeClass('active');
                 $('#unit-btn-' + bookId + '-' + donViGiaId).addClass('active');
             },
-            error: function(xhr, status, error) {
-                console.error('Lỗi khi cập nhật giá:', error);
+            error: function(xhr) {
+                console.error('Lỗi khi cập nhật giá:', xhr.responseText);
             }
         });
     }
+
+    // Kiểm tra tham số showLogin
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showLogin') === 'true') {
+            $('#loginModal').modal('show');
+        }
+        startCountdown(); // Khởi động countdown
+    });
 </script>
 
-
+<script src="/js/utils.js" defer></script>
 </body>
 </html>

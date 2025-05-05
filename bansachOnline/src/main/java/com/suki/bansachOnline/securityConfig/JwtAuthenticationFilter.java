@@ -26,29 +26,54 @@ public class JwtAuthenticationFilter implements Filter {
         this.userService = userService;
     }
 
-    @Override
-    public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        String header = httpRequest.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            String email = jwtUtil.extractEmail(token);
-            if (email != null && jwtUtil.validateToken(token, email)) {
-                String role = jwtUtil.extractRole(token);
-                Optional<User> userOpt = userService.findByEmail(email);
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+//    @Override
+//    public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response, FilterChain chain)
+//            throws IOException, ServletException {
+//        HttpServletRequest httpRequest = (HttpServletRequest) request;
+//        HttpServletResponse httpResponse = (HttpServletResponse) response;
+//
+//        String header = httpRequest.getHeader("Authorization");
+//        if (header != null && header.startsWith("Bearer ")) {
+//            String token = header.substring(7);
+//            String email = jwtUtil.extractEmail(token);
+//            if (email != null && jwtUtil.validateToken(token, email)) {
+//                String role = jwtUtil.extractRole(token);
+//                Optional<User> userOpt = userService.findByEmail(email);
+//                if (userOpt.isPresent()) {
+//                    User user = userOpt.get();
+//                    UsernamePasswordAuthenticationToken authentication =
+//                            new UsernamePasswordAuthenticationToken(user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+//                    SecurityContextHolder.getContext().setAuthentication(authentication);
+//                }
+//            }
+//        }
+//        chain.doFilter(request, response);
+//    }
+@Override
+public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    String header = httpRequest.getHeader("Authorization");
+    if (header != null && header.startsWith("Bearer ")) {
+        String token = header.substring(7);
+        String email = jwtUtil.extractEmail(token);
+        if (email != null && jwtUtil.validateToken(token, email)) {
+            String role = jwtUtil.extractRole(token);
+            Optional<User> userOpt = userService.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                userOpt = userService.findByPhoneNumber(email);
+            }
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        chain.doFilter(request, response);
     }
+    chain.doFilter(request, response);
+}
 
     @Override
     public void init(jakarta.servlet.FilterConfig filterConfig) throws ServletException {

@@ -1,15 +1,13 @@
 package com.suki.bansachOnline.controller;
 
-import com.suki.bansachOnline.model.DanhMuc;
-import com.suki.bansachOnline.model.NhaXuatBan;
-import com.suki.bansachOnline.model.TacGia;
+import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.service.QuanlyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/quanly")
@@ -18,14 +16,13 @@ public class QuanlyController {
     @Autowired
     private QuanlyService quanlyService;
 
-    // Lấy danh sách tất cả tác giả
+    // Các endpoint hiện có cho tác giả, nhà xuất bản, danh mục, đối tượng không cần sửa
     @GetMapping("/authors")
     public ResponseEntity<List<TacGia>> getAllTacGia() {
         List<TacGia> tacGiaList = quanlyService.getAllTacGia();
         return ResponseEntity.ok(tacGiaList);
     }
 
-    // Lấy tác giả theo ID
     @GetMapping("/authors/{id}")
     public ResponseEntity<TacGia> getTacGiaById(@PathVariable Integer id) {
         Optional<TacGia> tacGia = quanlyService.getTacGiaById(id);
@@ -33,14 +30,12 @@ public class QuanlyController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Thêm tác giả mới
     @PostMapping("/authors")
     public ResponseEntity<TacGia> addTacGia(@RequestBody TacGia tacGia) {
         TacGia newTacGia = quanlyService.addTacGia(tacGia);
         return ResponseEntity.ok(newTacGia);
     }
 
-    // Cập nhật tác giả
     @PutMapping("/authors/{id}")
     public ResponseEntity<TacGia> updateTacGia(@PathVariable Integer id, @RequestBody TacGia tacGia) {
         TacGia updatedTacGia = quanlyService.updateTacGia(id, tacGia);
@@ -50,7 +45,6 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
-    // Xóa tác giả
     @DeleteMapping("/authors/{id}")
     public ResponseEntity<Void> deleteTacGia(@PathVariable Integer id) {
         boolean deleted = quanlyService.deleteTacGia(id);
@@ -60,15 +54,12 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
-
-    // Lấy danh sách tất cả nhà xuất bản
     @GetMapping("/publishers")
     public ResponseEntity<List<NhaXuatBan>> getAllNhaXuatBan() {
         List<NhaXuatBan> nhaXuatBanList = quanlyService.getAllNhaXuatBan();
         return ResponseEntity.ok(nhaXuatBanList);
     }
 
-    // Lấy nhà xuất bản theo ID
     @GetMapping("/publishers/{id}")
     public ResponseEntity<NhaXuatBan> getNhaXuatBanById(@PathVariable Integer id) {
         Optional<NhaXuatBan> nhaXuatBan = quanlyService.getNhaXuatBanById(id);
@@ -76,14 +67,12 @@ public class QuanlyController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Thêm nhà xuất bản mới
     @PostMapping("/publishers")
     public ResponseEntity<NhaXuatBan> addNhaXuatBan(@RequestBody NhaXuatBan nhaXuatBan) {
         NhaXuatBan newNhaXuatBan = quanlyService.addNhaXuatBan(nhaXuatBan);
         return ResponseEntity.ok(newNhaXuatBan);
     }
 
-    // Cập nhật nhà xuất bản
     @PutMapping("/publishers/{id}")
     public ResponseEntity<NhaXuatBan> updateNhaXuatBan(@PathVariable Integer id, @RequestBody NhaXuatBan nhaXuatBan) {
         NhaXuatBan updatedNhaXuatBan = quanlyService.updateNhaXuatBan(id, nhaXuatBan);
@@ -93,7 +82,6 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
-    // Xóa nhà xuất bản
     @DeleteMapping("/publishers/{id}")
     public ResponseEntity<Void> deleteNhaXuatBan(@PathVariable Integer id) {
         boolean deleted = quanlyService.deleteNhaXuatBan(id);
@@ -103,14 +91,12 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
-    // Lấy danh sách tất cả danh mục
     @GetMapping("/categories")
     public ResponseEntity<List<DanhMuc>> getAllDanhMuc() {
         List<DanhMuc> danhMucList = quanlyService.getAllDanhMuc();
         return ResponseEntity.ok(danhMucList);
     }
 
-    // Lấy danh mục theo ID
     @GetMapping("/categories/{id}")
     public ResponseEntity<DanhMuc> getDanhMucById(@PathVariable Integer id) {
         Optional<DanhMuc> danhMuc = quanlyService.getDanhMucById(id);
@@ -118,14 +104,12 @@ public class QuanlyController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Thêm danh mục mới
     @PostMapping("/categories")
     public ResponseEntity<DanhMuc> addDanhMuc(@RequestBody DanhMuc danhMuc) {
         DanhMuc newDanhMuc = quanlyService.addDanhMuc(danhMuc);
         return ResponseEntity.ok(newDanhMuc);
     }
 
-    // Cập nhật danh mục
     @PutMapping("/categories/{id}")
     public ResponseEntity<DanhMuc> updateDanhMuc(@PathVariable Integer id, @RequestBody DanhMuc danhMuc) {
         DanhMuc updatedDanhMuc = quanlyService.updateDanhMuc(id, danhMuc);
@@ -135,12 +119,278 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
-    // Xóa danh mục
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteDanhMuc(@PathVariable Integer id) {
         boolean deleted = quanlyService.deleteDanhMuc(id);
         if (deleted) {
             return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/doituongs")
+    public ResponseEntity<List<DoiTuong>> getAllDoiTuong() {
+        List<DoiTuong> doiTuongList = quanlyService.getAllDoiTuong();
+        return ResponseEntity.ok(doiTuongList);
+    }
+
+    @GetMapping("/doituongs/{id}")
+    public ResponseEntity<DoiTuong> getDoiTuongById(@PathVariable Integer id) {
+        Optional<DoiTuong> doiTuong = quanlyService.getDoiTuongById(id);
+        return doiTuong.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/doituongs")
+    public ResponseEntity<DoiTuong> addDoiTuong(@RequestBody DoiTuong doiTuong) {
+        DoiTuong newDoiTuong = quanlyService.addDoiTuong(doiTuong);
+        return ResponseEntity.ok(newDoiTuong);
+    }
+
+    @PutMapping("/doituongs/{id}")
+    public ResponseEntity<DoiTuong> updateDoiTuong(@PathVariable Integer id, @RequestBody DoiTuong doiTuong) {
+        DoiTuong updatedDoiTuong = quanlyService.updateDoiTuong(id, doiTuong);
+        if (updatedDoiTuong != null) {
+            return ResponseEntity.ok(updatedDoiTuong);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/doituongs/{id}")
+    public ResponseEntity<Void> deleteDoiTuong(@PathVariable Integer id) {
+        boolean deleted = quanlyService.deleteDoiTuong(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/books")
+    public ResponseEntity<List<Book>> getAllBooks() {
+        List<Book> books = quanlyService.getAllBooks();
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/books/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable Integer id) {
+        Optional<Book> book = quanlyService.getBookById(id);
+        return book.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Thêm sách mới - Nhận JSON
+    @PostMapping("/books")
+    public ResponseEntity<?> addBook(@RequestBody Map<String, Object> request) {
+        try {
+            Book book = mapToBook(request.get("book"));
+            DonViGia donViGia = mapToDonViGia(request.get("donViGia"));
+            List<BookImage> images = mapToBookImages(request.get("images"));
+
+            Book newBook = quanlyService.addBook(book, images, donViGia);
+            return ResponseEntity.ok(newBook);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    // Cập nhật sách - Nhận JSON
+    @PutMapping("/books/{id}")
+    public ResponseEntity<?> updateBook(@PathVariable Integer id, @RequestBody Map<String, Object> request) {
+        try {
+            Book book = mapToBook(request.get("book"));
+            DonViGia donViGia = mapToDonViGia(request.get("donViGia"));
+            List<BookImage> images = mapToBookImages(request.get("images"));
+
+            Book updatedBook = quanlyService.updateBook(id, book, images, donViGia);
+            if (updatedBook != null) {
+                return ResponseEntity.ok(updatedBook);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/books/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Integer id) {
+        boolean deleted = quanlyService.deleteBook(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Hàm ánh xạ Map thành Book
+    private Book mapToBook(Object bookObj) {
+        if (bookObj == null) {
+            throw new IllegalArgumentException("Thông tin sách không được để trống");
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> bookMap = (Map<String, Object>) bookObj;
+        Book book = new Book();
+        book.setTenSach((String) bookMap.get("tenSach"));
+        book.setMoTaNgan((String) bookMap.get("moTaNgan"));
+        book.setNamXuatBan(bookMap.get("namXuatBan") != null ? Integer.parseInt(bookMap.get("namXuatBan").toString()) : null);
+        book.setSoTrang(bookMap.get("soTrang") != null ? Integer.parseInt(bookMap.get("soTrang").toString()) : null);
+        book.setSoLuong(Integer.parseInt(bookMap.get("soLuong").toString()));
+
+        if (bookMap.get("tacGia") != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> tacGiaMap = (Map<String, Object>) bookMap.get("tacGia");
+            TacGia tacGia = new TacGia();
+            tacGia.setId(Integer.parseInt(tacGiaMap.get("id").toString()));
+            book.setTacGia(tacGia);
+        }
+        if (bookMap.get("danhMuc") != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> danhMucMap = (Map<String, Object>) bookMap.get("danhMuc");
+            DanhMuc danhMuc = new DanhMuc();
+            danhMuc.setId(Integer.parseInt(danhMucMap.get("id").toString()));
+            book.setDanhMuc(danhMuc);
+        }
+        if (bookMap.get("nhaXuatBan") != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> nhaXuatBanMap = (Map<String, Object>) bookMap.get("nhaXuatBan");
+            NhaXuatBan nhaXuatBan = new NhaXuatBan();
+            nhaXuatBan.setId(Integer.parseInt(nhaXuatBanMap.get("id").toString()));
+            book.setNhaXuatBan(nhaXuatBan);
+        }
+        if (bookMap.get("doiTuong") != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> doiTuongMap = (Map<String, Object>) bookMap.get("doiTuong");
+            DoiTuong doiTuong = new DoiTuong();
+            doiTuong.setId(Integer.parseInt(doiTuongMap.get("id").toString()));
+            book.setDoiTuong(doiTuong);
+        }
+
+        return book;
+    }
+
+    // Hàm ánh xạ Map thành DonViGia
+    private DonViGia mapToDonViGia(Object donViGiaObj) {
+        if (donViGiaObj == null) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> donViGiaMap = (Map<String, Object>) donViGiaObj;
+        DonViGia donViGia = new DonViGia();
+        donViGia.setDonVi((String) donViGiaMap.get("donVi"));
+        donViGia.setGia(Double.parseDouble(donViGiaMap.get("gia").toString()));
+        donViGia.setDiscount(donViGiaMap.get("discount") != null ? Double.parseDouble(donViGiaMap.get("discount").toString()) : 0.0);
+        return donViGia;
+    }
+
+    // Hàm ánh xạ Map thành List<BookImage>
+    private List<BookImage> mapToBookImages(Object imagesObj) {
+        List<BookImage> images = new ArrayList<>();
+        if (imagesObj == null) {
+            return images;
+        }
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> imagesList = (List<Map<String, Object>>) imagesObj;
+        for (Map<String, Object> imageMap : imagesList) {
+            BookImage image = new BookImage();
+            image.setImageUrl((String) imageMap.get("imageUrl"));
+            image.setIsMain((Boolean) imageMap.get("isMain"));
+            image.setImageOrder(Integer.parseInt(imageMap.get("imageOrder").toString()));
+            images.add(image);
+        }
+        return images;
+    }
+
+
+    // Lấy danh sách tất cả người dùng
+//    @GetMapping("/users")
+//    public ResponseEntity<List<User>> getAllUsers() {
+//        List<User> users = quanlyService.getAllUsers();
+//        return ResponseEntity.ok(users);
+//    }
+
+    // Lấy thông tin người dùng theo ID
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+        Optional<User> user = quanlyService.getUserById(id);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Thêm người dùng mới
+    @PostMapping("/users")
+    public ResponseEntity<User> addUser(@RequestBody User user) {
+        User newUser = quanlyService.addUser(user);
+        return ResponseEntity.ok(newUser);
+    }
+
+    // Cập nhật thông tin người dùng
+    @PutMapping("/users/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user) {
+        User updatedUser = quanlyService.updateUser(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Xóa người dùng
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        boolean deleted = quanlyService.deleteUser(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, Object>> getAllUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search) {
+        Page<User> userPage = quanlyService.getAllUsers(page, size, search);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", userPage.getContent());
+        response.put("totalPages", userPage.getTotalPages());
+        response.put("currentPage", userPage.getNumber() + 1);
+        response.put("totalItems", userPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/orders")
+    public ResponseEntity<Map<String, Object>> getAllOrders(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search) {
+        Page<Order> orderPage = quanlyService.getAllOrders(page, size, search);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", orderPage.getContent());
+        response.put("totalPages", orderPage.getTotalPages());
+        response.put("currentPage", orderPage.getNumber() + 1);
+        response.put("totalItems", orderPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Integer id) {
+        Optional<Order> order = quanlyService.getOrderById(id);
+        return order.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
+        boolean deleted = quanlyService.deleteOrder(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/orders/{id}")
+    public ResponseEntity<Order> updateOrder(@PathVariable Integer id, @RequestBody Order order) {
+        Order updatedOrder = quanlyService.updateOrder(id, order);
+        if (updatedOrder != null) {
+            return ResponseEntity.ok(updatedOrder);
         }
         return ResponseEntity.notFound().build();
     }

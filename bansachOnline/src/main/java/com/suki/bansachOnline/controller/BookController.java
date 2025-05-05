@@ -5,6 +5,11 @@ import com.suki.bansachOnline.service.BookService;
 import com.suki.bansachOnline.service.GioHangService;
 import com.suki.bansachOnline.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -76,6 +81,7 @@ public class BookController {
         return "sanpham";
     }
 
+
     @GetMapping("/update-price")
     @ResponseBody
     public Map<String, Object> updatePrice(@RequestParam("bookId") int bookId,
@@ -106,6 +112,23 @@ public class BookController {
         return response;
     }
 
+    // Thêm endpoint tìm kiếm sách
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<Page<Book>> searchBooks(
+            @RequestParam("query") String query,
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Book> books = bookService.searchBooks(query, categoryId, pageable);
+            return ResponseEntity.ok(books);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
     private User getUserFromPrincipal(Object principal) {
         if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
             org.springframework.security.core.userdetails.UserDetails userDetails = (org.springframework.security.core.userdetails.UserDetails) principal;
@@ -118,5 +141,14 @@ public class BookController {
                     : userService.findByFacebookId(providerId).orElse(null);
         }
         return null;
+    }
+
+    // Endpoint lấy sách nổi bật
+    @GetMapping("/featured-books")
+    @ResponseBody
+    public ResponseEntity<List<Book>> getFeaturedBooksByCategory(@RequestParam("danhMucId") Integer danhMucId,
+                                                                 @RequestParam(defaultValue = "2") int limit) {
+        List<Book> books = bookService.getFeaturedBooksByCategory(danhMucId, limit);
+        return ResponseEntity.ok(books);
     }
 }

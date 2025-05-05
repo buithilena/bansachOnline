@@ -4,122 +4,113 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button">Sách văn học</a>
-            <div class="dropdown-menu">
-              <div class="menu-left">
-                <div class="menu-category">Danh mục</div>
-                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
-                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
-                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
-                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
-                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
-              </div>
-              <div class="menu-right">
-                <div class="menu-category">Sách nổi bật</div>
-                <div class="product-grid" id="van-hoc">
-                  <div class="product"><img src="/image/dacnhantam.png" alt=""><div>Đắc Nhân Tâm<br>120.000đ</div></div>
-                  <div class="product"><img src="/image/nhagiakim.png" alt=""><div>Nhà Giả Kim<br>95.000đ</div></div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button">Sách kỹ năng</a>
-            <div class="dropdown-menu">
-              <div class="menu-left">
-                <div class="menu-category">Danh mục</div>
-                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
-                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
-                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
-                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
-                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
-              </div>
-              <div class="menu-right">
-                <div class="menu-category">Sách nổi bật</div>
-                <div class="product-grid" id="ky-nang">
-                  <div class="product"><img src="/image/tuduynhanhcham.png" alt=""><div>Tư Duy Nhanh Và Chậm<br>180.000đ</div></div>
-                  <div class="product"><img src="/image/7thoiquen.png" alt=""><div>7 Thói Quen Hiệu Quả<br>150.000đ</div></div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button">Sách thiếu nhi</a>
-            <div class="dropdown-menu">
-              <div class="menu-left">
-                <div class="menu-category">Danh mục</div>
-                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
-                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
-                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
-                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
-                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
-              </div>
-              <div class="menu-right">
-                <div class="menu-category">Sách nổi bật</div>
-                <div class="product-grid" id="thieu-nhi">
-                  <div class="product"><img src="/image/harry.png" alt=""><div>Harry Potter<br>250.000đ</div></div>
-                  <div class="product"><img src="/image/dora.png" alt=""><div>Doraemon<br>35.000đ</div></div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button">Sách kinh tế</a>
-            <div class="dropdown-menu">
-              <div class="menu-left">
-                <div class="menu-category">Danh mục</div>
-                <a data-category="tieuthuyet" href="#"><img src="/image/tieuthuyet.png" alt=""> Tiểu thuyết</a>
-                <a data-category="truyenngan" href="#"><img src="/image/truyenngan.png" alt=""> Truyện ngắn</a>
-                <a data-category="tho" href="#"><img src="/image/tho.png" alt=""> Thơ</a>
-                <a data-category="tuybut" href="#"><img src="/image/tuybut.png" alt=""> Tùy bút</a>
-                <a data-category="vanhocnuocngoai" href="#"><img src="/image/vhnn.png" alt=""> Văn học nước ngoài</a>
-              </div>
-              <div class="menu-right">
-                <div class="menu-category">Sách nổi bật</div>
-                <div class="product-grid" id="kinh-te">
-                  <div class="product"><img src="/image/quocgiakn.png" alt=""><div>Quốc Gia Khởi Nghiệp<br>130.000đ</div></div>
-                  <div class="product"><img src="/image/nguoigiauco.png" alt=""><div>Người Giàu Có Nhất Babylon<br>90.000đ</div></div>
-                </div>
-              </div>
-            </div>
-          </li>
+        <ul class="navbar-nav" id="category-list">
+          <!-- Danh mục sẽ được render động bằng JavaScript -->
         </ul>
       </div>
     </div>
   </nav>
 
-  <script>
-    const productData = {
-      tieuthuyet: [
-        { img: "/image/dacnhantam.png", name: "Đắc Nhân Tâm", price: "120.000đ" },
-        { img: "/image/nhagiakim.png", name: "Nhà Giả Kim", price: "95.000đ" }
-      ],
-      truyenngan: [
-        { img: "/image/tuduynhanhcham.png", name: "Tư Duy Nhanh Và Chậm", price: "180.000đ" },
-        { img: "/image/7thoiquen.png", name: "7 Thói Quen Hiệu Quả", price: "150.000đ" }
-      ],
-      tho: [
-        { img: "/image/harry.png", name: "Harry Potter", price: "250.000đ" }
-      ],
-      tuybut: [
-        { img: "/image/dora.png", name: "Doraemon", price: "35.000đ" },
-        { img: "/image/quocgiakn.png", name: "Quốc Gia Khởi Nghiệp", price: "130.000đ" }
-      ],
-      vanhocnuocngoai: [
-        { img: "/image/nguoigiauco.png", name: "Người Giàu Có Nhất Babylon", price: "90.000đ" }
-      ]
-    };
+  <!-- Template cho mỗi dropdown -->
+  <script type="text/template" id="category-template">
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" role="button">{categoryName}</a>
+      <div class="dropdown-menu">
+        <div class="menu-right">
+          <div class="menu-category">Sách nổi bật</div>
+          <div class="product-grid" data-category-id="{categoryId}">
+            <!-- Sách nổi bật sẽ được render động -->
+          </div>
+        </div>
+      </div>
+    </li>
+  </script>
 
-    document.querySelectorAll(".menu-left a").forEach(item => {
-      item.addEventListener("mouseover", function() {
-        const category = this.getAttribute("data-category");
-        const productList = this.closest(".dropdown-menu").querySelector(".product-grid");
-        productList.innerHTML = productData[category].map(p =>
-                `<div class='product'><img src='${p.img}' alt=''><div>${p.name}<br>${p.price}</div></div>`
-        ).join("");
-      });
-    });
+  <!-- Template cho mỗi sản phẩm -->
+  <script type="text/template" id="product-template">
+    <div class="product">
+      <img src="{imageUrl}" alt="">
+      <div>{bookName}<br>{price}</div>
+    </div>
+  </script>
+
+  <script>
+    // Hàm thay thế dữ liệu vào template
+    function renderTemplate(templateId, data) {
+      let template = document.getElementById(templateId).innerText;
+      for (const key in data) {
+        template = template.replace(`{${key}}`, data[key]);
+      }
+      return template;
+    }
+
+    // Lấy danh sách danh mục
+    fetch('/api/quanly/categories')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Lỗi khi lấy danh mục: ' + response.status);
+              }
+              return response.json();
+            })
+            .then(categories => {
+              const categoryList = document.getElementById('category-list');
+              categories.forEach(category => {
+                // Kiểm tra category.id có tồn tại
+                if (!category.id) {
+                  console.error('Danh mục không có id:', category);
+                  return;
+                }
+
+                // Render dropdown cho mỗi danh mục
+                const categoryHtml = renderTemplate('category-template', {
+                  categoryName: category.tenDanhMuc || 'Không có tên',
+                  categoryId: category.id
+                });
+                categoryList.insertAdjacentHTML('beforeend', categoryHtml);
+
+                // Lấy sách nổi bật cho danh mục
+                fetch(`/book/featured-books?danhMucId=${category.id}`)
+                        .then(response => {
+                          if (!response.ok) {
+                            throw new Error('Lỗi khi lấy sách nổi bật: ' + response.status);
+                          }
+                          return response.json();
+                        })
+                        .then(books => {
+                          const productGrid = document.querySelector(`.product-grid[data-category-id="${category.id}"]`);
+                          if (!productGrid) {
+                            console.error('Không tìm thấy product-grid cho danh mục:', category.id);
+                            return;
+                          }
+
+                          if (books.length === 0) {
+                            productGrid.innerHTML = '<div>Chưa có sách nổi bật</div>';
+                            return;
+                          }
+
+                          books.forEach(book => {
+                            const mainImage = book.bookImages && book.bookImages.find(img => img.isMain) || { imageUrl: '/images/placeholder.png' };
+                            const donViGia = book.donViGias && book.donViGias[0] || { gia: 0 };
+                            const productHtml = renderTemplate('product-template', {
+                              imageUrl: mainImage.imageUrl,
+                              bookName: book.tenSach || 'Không có tên',
+                              price: donViGia.gia ? donViGia.gia.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'
+                            });
+                            productGrid.insertAdjacentHTML('beforeend', productHtml);
+                          });
+                        })
+                        .catch(error => {
+                          console.error(`Lỗi khi lấy sách nổi bật cho danh mục ${category.id}:`, error);
+                          const productGrid = document.querySelector(`.product-grid[data-category-id="${category.id}"]`);
+                          if (productGrid) {
+                            productGrid.innerHTML = '<div>Lỗi khi tải sách</div>';
+                          }
+                        });
+              });
+            })
+            .catch(error => {
+              console.error('Lỗi khi lấy danh mục:', error);
+              document.getElementById('category-list').innerHTML = '<li>Lỗi khi tải danh mục</li>';
+            });
   </script>
 </div>

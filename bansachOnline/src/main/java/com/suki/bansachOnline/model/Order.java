@@ -1,4 +1,4 @@
-package com.suki.bansachOnline.controller;
+package com.suki.bansachOnline.model;
 
 import com.suki.bansachOnline.model.User;
 import jakarta.persistence.*;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Data
 @Getter
 @Setter
-public class Orders {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

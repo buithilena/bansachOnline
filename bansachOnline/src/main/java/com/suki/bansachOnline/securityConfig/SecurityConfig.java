@@ -31,14 +31,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Cho phép tất cả vào các endpoint công khai
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/dangkyaccount", "/register", "/save-profile", "/update-price", "/api/quanly/**", "/products", "/inventory-by-product/{productId}", "/","/giohang","/book/**",
-                                "/image/**", "/css/**", "/js/**", "/logonewT.png", "/sanpham", "/product-images/**", "/cart/**", "/products-by-doituong", "/quanly", "/api/login", "/api/quanly/**").permitAll() // Thêm /api/login
+                        .requestMatchers("/", "/login", "/dangkyaccount", "/register", "/save-profile", "/update-price", "/products", "/inventory-by-product/{productId}", "/","/giohang","/book/**",
+                                "/image/**", "/css/**", "/js/**", "/logo.png", "/sanpham", "/product-images/**","/quanly/**", "/cart/**", "/products-by-doituong", "/api/login", "/api/quanly/**","/api/quanly/users/**",  "/book/search").permitAll() // Thêm /api/login
+
+                        // Chỉ admin mới truy cập được các endpoint quản lý
+                        .requestMatchers("/quanly/**", "/api/quanly/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login", "/cart/**") // Bỏ CSRF cho /api/login
+                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login", "/cart/**", "/quanly/**", "/api/quanly/categories", "book/featured-books") // Bỏ CSRF cho /api/login
                 )
+//                .headers(headers -> headers
+//                        .cacheControl(cache -> cache.disable()) // Không lưu trữ cache
+//
+//                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService())
@@ -51,7 +59,6 @@ public class SecurityConfig {
                             String picture = null;
                             String email = (String) attributes.get("email");
                             String provider = request.getRequestURI().contains("google") ? "google" : "facebook";
-
                             Object pictureObj = attributes.get("picture");
                             if (pictureObj instanceof Map) {
                                 Map<String, Object> pictureMap = (Map<String, Object>) pictureObj;
@@ -62,11 +69,10 @@ public class SecurityConfig {
                             } else if (pictureObj instanceof String) {
                                 picture = (String) pictureObj;
                             }
-
                             User user = userService.saveOrUpdateUser(providerId, name, picture, email, provider);
+                            System.out.println("OAuth2 Login User Role: " + user.getRole()); // Ghi log
                             String token = jwtUtil.generateToken(user);
                             response.addHeader("Authorization", "Bearer " + token);
-
                             if (!userService.isProfileComplete(user)) {
                                 response.sendRedirect("/dangky?providerId=" + providerId + "&provider=" + provider);
                             } else {
@@ -92,4 +98,8 @@ public class SecurityConfig {
             return oAuth2User;
         };
     }
+//    @Bean
+//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 }
