@@ -5,6 +5,7 @@ import com.suki.bansachOnline.service.BookService;
 import com.suki.bansachOnline.service.GioHangService;
 import com.suki.bansachOnline.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -118,5 +119,14 @@ public class BookController {
                     : userService.findByFacebookId(providerId).orElse(null);
         }
         return null;
+    }
+
+    // Endpoint lấy sách nổi bật
+    @GetMapping("/featured-books")
+    @ResponseBody
+    public ResponseEntity<List<Book>> getFeaturedBooksByCategory(@RequestParam("danhMucId") Integer danhMucId,
+                                                                 @RequestParam(defaultValue = "2") int limit) {
+        List<Book> books = bookService.getFeaturedBooksByCategory(danhMucId, limit);
+        return ResponseEntity.ok(books);
     }
 }

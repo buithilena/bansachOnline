@@ -4,7 +4,9 @@ import com.suki.bansachOnline.model.User;
 import com.suki.bansachOnline.securityConfig.JwtUtil;
 import com.suki.bansachOnline.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -26,14 +28,32 @@ public class UserController {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+//    @ModelAttribute
+//    public void addUserToModel(Model model, @AuthenticationPrincipal OAuth2User oAuth2User) {
+//        if (oAuth2User != null) {
+//            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+//            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+//            Optional<User> user = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
+//            if (user.isPresent()) {
+//                model.addAttribute("loggedInUser", user.get());
+//            }
+//        }
+//    }
+
     @ModelAttribute
     public void addUserToModel(Model model, @AuthenticationPrincipal OAuth2User oAuth2User) {
-        if (oAuth2User != null) {
-            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
-            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
-            Optional<User> user = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
-            if (user.isPresent()) {
-                model.addAttribute("loggedInUser", user.get());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            if (oAuth2User != null) {
+                String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+                String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+                Optional<User> user = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
+                if (user.isPresent()) {
+                    model.addAttribute("loggedInUser", user.get());
+                }
+            } else if (authentication.getPrincipal() instanceof User) {
+                User user = (User) authentication.getPrincipal();
+                model.addAttribute("loggedInUser", user);
             }
         }
     }

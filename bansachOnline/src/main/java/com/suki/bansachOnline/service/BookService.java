@@ -4,6 +4,7 @@ import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.respository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -94,6 +95,15 @@ public class BookService {
     // Thêm phương thức mới
     public Page<Book> getBooksByCategory(Integer categoryId, Pageable pageable) {
         return bookRepository.findByDanhMucId(categoryId, pageable);
+    }
+
+
+
+    // Cập nhật phương thức để lấy sách nổi bật có so_luong > 50
+    public List<Book> getFeaturedBooksByCategory(Integer danhMucId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<Book> books = bookRepository.findByDanhMucIdAndSoLuongGreaterThan50(danhMucId, pageable);
+        return books.getContent();
     }
 
 

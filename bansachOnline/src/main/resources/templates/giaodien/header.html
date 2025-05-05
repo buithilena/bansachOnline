@@ -1,6 +1,8 @@
 <div th:fragment="header">
     <link rel="stylesheet" href="/css/header.css">
     <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
         <defs>
@@ -70,18 +72,29 @@
 
                 <!-- Thanh tìm kiếm -->
                 <div class="col-sm-6 col-lg-5 d-none d-lg-block">
+<!--                    <div class="search-barhome">-->
+<!--                        <select class="form-select" name="categoryId" id="categorySelect" onchange="filterByCategory(this.value)">-->
+<!--                            <option value="" th:selected="${categoryId == null}">Danh Mục Sách</option>-->
+<!--                            <option th:each="danhMuc : ${danhMucList}"-->
+<!--                                    th:value="${danhMuc.id}"-->
+<!--                                    th:text="${danhMuc.tenDanhMuc}"-->
+<!--                                    th:selected="${categoryId != null and categoryId == danhMuc.id}"></option>-->
+<!--                        </select>                       -->
                     <div class="search-barhome">
-                        <select class="form-select" name="categoryId" id="categorySelect" onchange="filterByCategory(this.value)">
+                        <label for="categorySelect" class="visually-hidden">Chọn danh mục sách</label>
+                        <select class="form-select" name="categoryId" id="categorySelect" onchange="filterByCategory(this.value)" aria-label="Chọn danh mục sách" title="Chọn danh mục sách">
                             <option value="" th:selected="${categoryId == null}">Danh Mục Sách</option>
                             <option th:each="danhMuc : ${danhMucList}"
                                     th:value="${danhMuc.id}"
                                     th:text="${danhMuc.tenDanhMuc}"
                                     th:selected="${categoryId != null and categoryId == danhMuc.id}"></option>
-                        </select>                        <form id="search-form" action="/search" method="get">
+                        </select>
+
+                        <form id="search-form" action="/search" method="get">
                             <input type="text" name="query" placeholder="Tìm Kiếm">
                             <input type="hidden" name="categoryId" id="categoryIdInput">
                         </form>
-                        <button type="submit" class="search-button" form="search-form">
+                        <button type="submit" class="search-button" form="search-form" aria-label="Tìm kiếm sách" title="Tìm kiếm sách">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/>
                             </svg>
@@ -185,7 +198,7 @@
                                 </a>
                             </div>
 
-                            // modal đăng ký
+<!--                            modal đăng ký-->
                             <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
                                 <form id="registerForm" action="/register" method="post">
                                     <div class="mb-3 text-start">
