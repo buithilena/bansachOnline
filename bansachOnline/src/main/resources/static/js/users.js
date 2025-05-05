@@ -1,3 +1,54 @@
+
+    $(document).ready(function () {
+        $('#loginForm').submit(function (e) {
+            e.preventDefault();
+            const phoneNumber = $('#loginPhone').val();
+            const password = $('#loginPassword').val();
+            $.ajax({
+                url: '/api/login',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    [$("meta[name='_csrf_header']").attr("content")]: $("meta[name='_csrf']").attr("content")
+                },
+                data: JSON.stringify({phoneNumber, password}),
+                success: function (response) {
+                    console.log("Login Response:", response);
+                    if (response.token) {
+                        localStorage.setItem('jwtToken', response.token);
+                        localStorage.setItem('userName', response.name); // Lưu tên
+                        Toastify({
+                            text: "Đăng nhập thành công!",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#28a745",
+                            stopOnFocus: true
+                        }).showToast();
+                        if (response.role === "ADMIN") {
+                            window.location.href = "/quanly";
+                        } else {
+                            window.location.href = "/";
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Login Error:", xhr);
+                    let errorMsg = xhr.responseJSON?.error || "Đã xảy ra lỗi khi đăng nhập!";
+                    Toastify({
+                        text: errorMsg,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#dc3545",
+                        stopOnFocus: true
+                    }).showToast();
+                }
+            });
+        });
+});
+
+
 $(document).ready(function () {
     loadUsers();
 
@@ -33,19 +84,19 @@ $(document).ready(function () {
         }
         users.forEach(user => {
             tbody.append(`
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${user.name || ''}</td>
-                    <td>${user.email || ''}</td>
-                    <td>${user.phoneNumber || ''}</td>
-                    <td>${user.address || ''}</td>
-                    <td>${user.role || ''}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning edit-user" data-id="${user.id}">Sửa</button>
-                        <button class="btn btn-sm btn-danger delete-user" data-id="${user.id}">Xóa</button>
-                    </td>
-                </tr>
-            `);
+    <tr>
+        <td>${user.id}</td>
+        <td>${user.name || ''}</td>
+        <td>${user.email || ''}</td>
+        <td>${user.phoneNumber || ''}</td>
+        <td>${user.address || ''}</td>
+        <td>${user.role || ''}</td>
+        <td>
+            <button class="btn btn-sm btn-warning edit-user" data-id="${user.id}">Sửa</button>
+            <button class="btn btn-sm btn-danger delete-user" data-id="${user.id}">Xóa</button>
+        </td>
+    </tr>
+`);
         });
     }
 
@@ -156,13 +207,14 @@ $(document).ready(function () {
         });
     });
 
+
     // Tìm kiếm người dùng
     $('#search-users').on('input', function () {
         loadUsers(1, $(this).val());
     });
 
     // Xử lý sự kiện click cho phân trang
-    $(document).on('click', '#users-pagination .page-link', function(e) {
+    $(document).on('click', '#users-pagination .page-link', function (e) {
         e.preventDefault();
         const page = $(this).data('page');
         const search = $('#search-users').val();

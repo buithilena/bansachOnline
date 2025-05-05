@@ -1,5 +1,16 @@
 
     /* Reset và typography cơ bản */
+
+    .user-section {
+        text-align: center;
+    }
+    .user-name {
+        display: block;
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 * {
     margin: 0;
     padding: 0;

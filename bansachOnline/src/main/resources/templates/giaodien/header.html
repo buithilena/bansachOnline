@@ -1,5 +1,7 @@
 <div th:fragment="header">
     <link rel="stylesheet" href="/css/header.css">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
         <defs>
             <symbol xmlns="http://www.w3.org/2000/svg" id="link" viewBox="0 0 24 24">
@@ -93,13 +95,15 @@
                     </div>
                     <div class="action-icons">
                         <!-- Icon đăng nhập / ảnh đại diện -->
-                        <a th:href="@{''}" data-bs-toggle="modal" data-bs-target="#loginModal" th:unless="${loggedInUser != null}">
-                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#user"></use></svg>
-                        </a>
-                        <a th:href="@{/home(providerId=${loggedInUser.googleId != null ? loggedInUser.googleId : loggedInUser.facebookId}, provider=${loggedInUser.googleId != null ? 'google' : 'facebook'})}" th:if="${loggedInUser != null}">
-                            <img th:src="${loggedInUser.picture}" alt="User Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" />
-                        </a>
-
+                        <div class="user-section position-relative">
+                            <a th:href="@{''}" data-bs-toggle="modal" data-bs-target="#loginModal" th:unless="${loggedInUser != null}">
+                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#user"></use></svg>
+                            </a>
+                            <a th:href="@{/home(providerId=${loggedInUser.googleId != null ? loggedInUser.googleId : loggedInUser.facebookId}, provider=${loggedInUser.googleId != null ? 'google' : 'facebook'})}" th:if="${loggedInUser != null}" class="d-flex flex-column align-items-center">
+                                <img th:src="${loggedInUser.picture != null ? loggedInUser.picture : '/images/default-avatar.png'}" alt="User Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" />
+                                <span class="user-name mt-1 text-center" style="font-size: 12px; color: #333;" th:text="${loggedInUser.name != null ? loggedInUser.name : 'User'}"></span>
+                            </a>
+                        </div>
                         <a href="/wishlist">
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#heart"></use></svg>
                         </a>
@@ -133,6 +137,9 @@
                         <a th:href="@{/logout}" th:if="${loggedInUser != null}" class="ms-2">
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#logout"></use></svg>
                         </a>
+                        <a th:href="@{/quanly}" th:if="${loggedInUser != null and loggedInUser.role == 'ADMIN'}">
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#category"></use></svg> Quản lý
+                        </a>
                     </div>
                 </div>
             </div>
@@ -158,7 +165,7 @@
 
                         <div class="tab-content" id="loginTabContent">
                             <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
-                                <form action="/api/login" method="post">
+                                <form id="loginForm" action="/api/login" method="post">
                                     <div class="mb-3 text-start">
                                         <label for="loginPhone" class="form-label">Số điện thoại</label>
                                         <input type="tel" class="form-control" id="loginPhone" name="phoneNumber" placeholder="Nhập số điện thoại" required>
@@ -178,8 +185,9 @@
                                 </a>
                             </div>
 
+                            // modal đăng ký
                             <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                                <form action="/register" method="post">
+                                <form id="registerForm" action="/register" method="post">
                                     <div class="mb-3 text-start">
                                         <label for="registerPhone" class="form-label">Số điện thoại</label>
                                         <input type="tel" class="form-control" id="registerPhone" name="phone" placeholder="Nhập số điện thoại" required>
@@ -210,7 +218,12 @@
                 </div>
             </div>
         </div>
+
+
+
     </div>
+
+
 
     <script>
         function removeFromCart(cartItemId) {
@@ -270,4 +283,8 @@
             }
         }
     </script>
+
+    <script src="/js/utils.js" defer></script>
+
+    <script src="/js/users.js" defer></script>
 </div>

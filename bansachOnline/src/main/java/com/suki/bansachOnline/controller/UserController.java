@@ -43,17 +43,65 @@ public class UserController {
         return "/";
     }
 
-    @GetMapping("/register")
-    public String showRegisterPage(@RequestParam String providerId, @RequestParam String provider, Model model) {
-        Optional<User> user = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
-        if (user.isPresent()) {
-            model.addAttribute("providerId", providerId);
-            model.addAttribute("name", user.get().getName());
-            model.addAttribute("provider", provider);
-            return "dangky";
-        }
-        return "redirect:/";
+//    @GetMapping("/register")
+//    public String showRegisterPage(@RequestParam String providerId, @RequestParam String provider, Model model) {
+//        Optional<User> user = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
+//        if (user.isPresent()) {
+//            model.addAttribute("providerId", providerId);
+//            model.addAttribute("name", user.get().getName());
+//            model.addAttribute("provider", provider);
+//            return "dangky";
+//        }
+//        return "redirect:/";
+//    }
+@PostMapping("/register")
+@ResponseBody
+public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, String> registerRequest) {
+    String phoneNumber = registerRequest.get("phone");
+    String password = registerRequest.get("password");
+    String confirmPassword = registerRequest.get("confirmPassword");
+
+    Map<String, String> response = new HashMap<>();
+
+    // Kiểm tra số điện thoại
+    if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+        response.put("error", "Số điện thoại không được để trống");
+        return ResponseEntity.status(400).body(response);
     }
+
+    // Kiểm tra mật khẩu
+    if (password == null || password.trim().isEmpty()) {
+        response.put("error", "Mật khẩu không được để trống");
+        return ResponseEntity.status(400).body(response);
+    }
+
+    // Kiểm tra xác nhận mật khẩu
+    if (!password.equals(confirmPassword)) {
+        response.put("error", "Mật khẩu xác nhận không khớp");
+        return ResponseEntity.status(400).body(response);
+    }
+
+    // Kiểm tra số điện thoại đã tồn tại
+    if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
+        response.put("error", "Số điện thoại đã được sử dụng");
+        return ResponseEntity.status(400).body(response);
+    }
+
+    // Tạo user mới
+    User user = new User();
+    user.setPhoneNumber(phoneNumber);
+    user.setPassword(passwordEncoder.encode(password));
+    user.setRole("USER");
+    userService.saveUser(user);
+
+    // Tạo token
+    String token = jwtUtil.generateToken(user);
+    response.put("token", token);
+    response.put("phoneNumber", user.getPhoneNumber());
+    response.put("role", user.getRole());
+
+    return ResponseEntity.ok(response);
+}
 
     @PostMapping("/save-profile")
     public String saveProfile(@RequestParam String providerId,
@@ -93,43 +141,35 @@ public class UserController {
     @PostMapping("/api/login")
     @ResponseBody
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
         String phoneNumber = loginRequest.get("phoneNumber");
-        String id = loginRequest.get("id");
         String password = loginRequest.get("password");
-
-        Optional<User> userOpt = Optional.empty();
         Map<String, String> response = new HashMap<>();
-
-        // Tìm user theo email, phoneNumber, hoặc id
-        if (email != null) {
-            userOpt = userService.findByEmail(email);
-        } else if (phoneNumber != null) {
-            userOpt = userService.findByPhoneNumber(phoneNumber);
-        } else if (id != null) {
-            try {
-                UUID uuid = UUID.fromString(id);
-                userOpt = userService.findById(uuid);
-            } catch (IllegalArgumentException e) {
-                response.put("error", "Invalid ID format");
-                return ResponseEntity.status(400).body(response);
-            }
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            response.put("error", "Số điện thoại không được để trống");
+            return ResponseEntity.status(400).body(response);
         }
-
+        if (password == null || password.trim().isEmpty()) {
+            response.put("error", "Mật khẩu không được để trống");
+            return ResponseEntity.status(400).body(response);
+        }
+        Optional<User> userOpt = userService.findByPhoneNumber(phoneNumber);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
+            System.out.println("Login User Role: " + user.getRole()); // Ghi log
             if (passwordEncoder.matches(password, user.getPassword())) {
                 String token = jwtUtil.generateToken(user);
                 response.put("token", token);
                 response.put("role", user.getRole());
                 response.put("email", user.getEmail());
+                response.put("phoneNumber", user.getPhoneNumber());
+                response.put("name", user.getName());
                 return ResponseEntity.ok(response);
             } else {
-                response.put("error", "Invalid password");
+                response.put("error", "Mật khẩu không đúng");
                 return ResponseEntity.status(401).body(response);
             }
         } else {
-            response.put("error", "User not found");
+            response.put("error", "Số điện thoại không tồn tại");
             return ResponseEntity.status(404).body(response);
         }
     }

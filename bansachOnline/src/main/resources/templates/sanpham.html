@@ -56,7 +56,7 @@
                 <!-- Giá sách -->
                 <h3 class="product-price">
                     <span th:if="${product.donViGias != null and !product.donViGias.isEmpty()}"
-                          th:text="${#numbers.formatDecimal(product.donViGias[0].gia - product.donViGias[0].discount, 0, 0)} + 'đ'"></span>
+                          th:text="${#numbers.formatDecimal(product.donViGias[0].gia *(1 - product.donViGias[0].discount / 100.0), 0, 0)} + 'đ'"></span>
                     <small class="old-price"
                            th:if="${product.donViGias != null and !product.donViGias.isEmpty() and product.donViGias[0].discount > 0}"
                            th:text="${#numbers.formatDecimal(product.donViGias[0].gia, 0, 0)} + 'đ'"></small>
