@@ -106,10 +106,15 @@ public class BookService {
         return books.getContent();
     }
 
+    // Thêm phương thức tìm kiếm sách
+    public Page<Book> searchBooks(String query, Integer danhMucId, Pageable pageable) {
+        if (danhMucId != null) {
+            return bookRepository.findByTenSachContainingIgnoreCaseAndDanhMucId(query, danhMucId, pageable);
+        }
+        return bookRepository.findByTenSachContainingIgnoreCase(query, pageable);
 
 
-
-
+    }
 
 
 }

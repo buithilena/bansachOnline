@@ -34,19 +34,19 @@ public class SecurityConfig {
                 // Cho phép tất cả vào các endpoint công khai
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/dangkyaccount", "/register", "/save-profile", "/update-price", "/products", "/inventory-by-product/{productId}", "/","/giohang","/book/**",
-                                "/image/**", "/css/**", "/js/**", "/logo.png", "/sanpham", "/product-images/**","/quanly/**", "/cart/**", "/products-by-doituong", "/api/login", "/api/quanly/**","/api/quanly/users/**", "/api/quanly/categories", "/api/book/featured-books").permitAll() // Thêm /api/login
+                                "/image/**", "/css/**", "/js/**", "/logo.png", "/sanpham", "/product-images/**","/quanly/**", "/cart/**", "/products-by-doituong", "/api/login", "/api/quanly/**","/api/quanly/users/**",  "/book/search").permitAll() // Thêm /api/login
 
                         // Chỉ admin mới truy cập được các endpoint quản lý
                         .requestMatchers("/quanly/**", "/api/quanly/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login", "/cart/**", "/quanly/**", "/api/quanly/categories", "/api/book/featured-books") // Bỏ CSRF cho /api/login
+                        .ignoringRequestMatchers("/api/quanly/**", "/save-profile", "/products", "/api/login", "/cart/**", "/quanly/**", "/api/quanly/categories", "book/featured-books") // Bỏ CSRF cho /api/login
                 )
-                .headers(headers -> headers
-                        .cacheControl(cache -> cache.disable()) // Không lưu trữ cache
-
-                )
+//                .headers(headers -> headers
+//                        .cacheControl(cache -> cache.disable()) // Không lưu trữ cache
+//
+//                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService())

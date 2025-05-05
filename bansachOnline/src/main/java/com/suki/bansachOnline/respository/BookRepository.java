@@ -37,6 +37,14 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     // Thêm phương thức mới để lấy sách có so_luong > 50 theo danhMucId
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias LEFT JOIN FETCH b.bookImages WHERE b.danhMuc.id = :danhMucId AND b.soLuong > 50")
     Page<Book> findByDanhMucIdAndSoLuongGreaterThan50(@Param("danhMucId") Integer danhMucId, Pageable pageable);
+
+    // Thêm phương thức tìm kiếm sách theo tên
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias LEFT JOIN FETCH b.bookImages WHERE LOWER(b.tenSach) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Book> findByTenSachContainingIgnoreCase(@Param("query") String query, Pageable pageable);
+
+    // Thêm phương thức tìm kiếm sách theo tên và danh mục
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.donViGias LEFT JOIN FETCH b.bookImages WHERE LOWER(b.tenSach) LIKE LOWER(CONCAT('%', :query, '%')) AND b.danhMuc.id = :danhMucId")
+    Page<Book> findByTenSachContainingIgnoreCaseAndDanhMucId(@Param("query") String query, @Param("danhMucId") Integer danhMucId, Pageable pageable);
 }
 
 //    List<Book> findByDanhMucId(Integer danhMucId);
