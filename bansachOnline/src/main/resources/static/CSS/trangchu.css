@@ -1,4 +1,68 @@
+/* Đảm bảo container không bị tràn */
+.product-scroll-container {
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
 
+/* Danh sách sản phẩm sử dụng lưới Bootstrap */
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; /* Khoảng cách giữa các sản phẩm */
+}
+
+/* Card sản phẩm */
+.product-card .card {
+    width: 100%;
+    max-width: 250px; /* Điều chỉnh kích thước card */
+    margin: 0 auto;
+    transition: transform 0.2s;
+}
+
+.product-card .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Hình ảnh sản phẩm */
+.product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Badge giảm giá */
+.discount-badge {
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+}
+
+/* Giá sản phẩm */
+.price-section {
+    margin: 10px 0;
+}
+
+.discounted-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.original-price {
+    font-size: 0.9rem;
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 767.98px) {
+    .product-list {
+        justify-content: center;
+    }
+    .product-card .card {
+        max-width: 100%;
+    }
+}
 
 .brand-scroll-container {
     overflow-x: auto;

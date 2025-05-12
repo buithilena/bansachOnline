@@ -36,59 +36,112 @@ public class HomeController {
     @Autowired
     private QuanlyService quanlyService;
 
-    @GetMapping("/")
-    public String home(Model model,
-                       @RequestParam(defaultValue = "0") int page,
-                       @RequestParam(value = "categoryId", required = false) Integer categoryId,
-                       @AuthenticationPrincipal OAuth2User oAuth2User,
-                       HttpSession session) {
-        User loggedInUser = null;
-        if (oAuth2User != null) {
-            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
-            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
-            Optional<User> userOpt = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
-            if (userOpt.isPresent()) {
-                loggedInUser = userOpt.get();
-                model.addAttribute("loggedInUser", loggedInUser);
-                if ("ADMIN".equals(loggedInUser.getRole())) {
-                    return "quanly"; // ADMIN vào trang quanly.html
-                }
+//    @GetMapping("/")
+//    public String home(Model model,
+//                       @RequestParam(defaultValue = "0") int page,
+//                       @RequestParam(value = "categoryId", required = false) Integer categoryId,
+//                       @AuthenticationPrincipal OAuth2User oAuth2User,
+//                       HttpSession session) {
+//        User loggedInUser = null;
+//        if (oAuth2User != null) {
+//            String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+//            String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+//            Optional<User> userOpt = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
+//            if (userOpt.isPresent()) {
+//                loggedInUser = userOpt.get();
+//                model.addAttribute("loggedInUser", loggedInUser);
+//                if ("ADMIN".equals(loggedInUser.getRole())) {
+//                    return "quanly"; // ADMIN vào trang quanly.html
+//                }
+//            }
+//        }
+//
+//        // Khởi tạo hoặc lấy giỏ hàng
+//        Cart cart = gioHangService.getOrCreateCart(loggedInUser, session);
+//        List<CartItem> cartItems = gioHangService.getCartItems(loggedInUser, session);
+//        int cartItemCount = gioHangService.getCartItemCount(cart);
+//
+//        List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
+//        model.addAttribute("flashSaleBooks", flashSaleBooks);
+//
+//        List<DanhMuc> danhMucList = quanlyService.getAllDanhMuc();
+//        model.addAttribute("danhMucList", danhMucList);
+//
+//        // Thêm thông tin giỏ hàng vào model
+//        model.addAttribute("cartItems", cartItems);
+//        model.addAttribute("cartItemCount", cartItemCount);
+//
+//        // Logic sách và đối tượng
+//        Pageable pageable = PageRequest.of(page, 12); // Hiển thị 12 sách mỗi trang
+//        Page<Book> bookPage;
+//        if (categoryId != null && categoryId > 0) {
+//            bookPage = bookService.getBooksByCategory(categoryId, pageable);
+//        } else {
+//            bookPage = bookService.getBooks(pageable);
+//        }
+//        List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
+//
+//        model.addAttribute("books", bookPage.getContent());
+//        model.addAttribute("totalPages", bookPage.getTotalPages());
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("doiTuongList", doiTuongList);
+//        model.addAttribute("categoryId", categoryId); // Để giữ trạng thái danh mục được chọn
+//
+//        return "trangchu"; // USER hoặc không đăng nhập vào trang chủ
+//    }
+@GetMapping("/")
+public String home(Model model,
+                   @RequestParam(defaultValue = "0") int page,
+                   @RequestParam(value = "categoryId", required = false) Integer categoryId,
+                   @AuthenticationPrincipal OAuth2User oAuth2User,
+                   HttpSession session) {
+    User loggedInUser = null;
+    if (oAuth2User != null) {
+        String providerId = oAuth2User.getAttribute("sub") != null ? oAuth2User.getAttribute("sub") : oAuth2User.getAttribute("id");
+        String provider = oAuth2User.getAttribute("sub") != null ? "google" : "facebook";
+        Optional<User> userOpt = "google".equals(provider) ? userService.findByGoogleId(providerId) : userService.findByFacebookId(providerId);
+        if (userOpt.isPresent()) {
+            loggedInUser = userOpt.get();
+            model.addAttribute("loggedInUser", loggedInUser);
+            if ("ADMIN".equals(loggedInUser.getRole())) {
+                return "quanly"; // ADMIN vào trang quanly.html
             }
         }
-
-        // Khởi tạo hoặc lấy giỏ hàng
-        Cart cart = gioHangService.getOrCreateCart(loggedInUser, session);
-        List<CartItem> cartItems = gioHangService.getCartItems(loggedInUser, session);
-        int cartItemCount = gioHangService.getCartItemCount(cart);
-
-        List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
-        model.addAttribute("flashSaleBooks", flashSaleBooks);
-
-        List<DanhMuc> danhMucList = quanlyService.getAllDanhMuc();
-        model.addAttribute("danhMucList", danhMucList);
-
-        // Thêm thông tin giỏ hàng vào model
-        model.addAttribute("cartItems", cartItems);
-        model.addAttribute("cartItemCount", cartItemCount);
-
-        // Logic sách và đối tượng
-        Pageable pageable = PageRequest.of(page, 12); // Hiển thị 12 sách mỗi trang
-        Page<Book> bookPage;
-        if (categoryId != null && categoryId > 0) {
-            bookPage = bookService.getBooksByCategory(categoryId, pageable);
-        } else {
-            bookPage = bookService.getBooks(pageable);
-        }
-        List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
-
-        model.addAttribute("books", bookPage.getContent());
-        model.addAttribute("totalPages", bookPage.getTotalPages());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("doiTuongList", doiTuongList);
-        model.addAttribute("categoryId", categoryId); // Để giữ trạng thái danh mục được chọn
-
-        return "trangchu"; // USER hoặc không đăng nhập vào trang chủ
     }
+
+    // Khởi tạo hoặc lấy giỏ hàng
+    Cart cart = gioHangService.getOrCreateCart(loggedInUser, session);
+    List<CartItem> cartItems = gioHangService.getCartItems(loggedInUser, session);
+    int cartItemCount = gioHangService.getCartItemCount(cart);
+
+    List<Book> flashSaleBooks = bookService.getFlashSaleBooks(25);
+    model.addAttribute("flashSaleBooks", flashSaleBooks);
+
+    List<DanhMuc> danhMucList = quanlyService.getAllDanhMuc();
+    model.addAttribute("danhMucList", danhMucList);
+
+    // Thêm thông tin giỏ hàng vào model
+    model.addAttribute("cartItems", cartItems);
+    model.addAttribute("cartItemCount", cartItemCount);
+
+    // Logic sách và đối tượng
+    Pageable pageable = PageRequest.of(page, 15); // Hiển thị 15 sách mỗi trang (5 sản phẩm/hàng × 3 hàng)
+    Page<Book> bookPage;
+    if (categoryId != null && categoryId > 0) {
+        bookPage = bookService.getBooksByCategory(categoryId, pageable);
+    } else {
+        bookPage = bookService.getBooks(pageable);
+    }
+    List<DoiTuong> doiTuongList = bookService.getAllDoiTuong();
+
+    model.addAttribute("books", bookPage.getContent());
+    model.addAttribute("totalPages", bookPage.getTotalPages());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("doiTuongList", doiTuongList);
+    model.addAttribute("categoryId", categoryId); // Để giữ trạng thái danh mục được chọn
+
+    return "trangchu"; // USER hoặc không đăng nhập vào trang chủ
+}
 
 
 

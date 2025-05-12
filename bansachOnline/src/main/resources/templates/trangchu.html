@@ -33,16 +33,74 @@
     </div>
 
     <!-- Hiển thị danh sách sách -->
+<!--    <div class="container mt-4">-->
+<!--        <h4 class="mb-3">Danh sách sản phẩm</h4>-->
+<!--        <div class="product-scroll-container">-->
+<!--            <div class="product-list">-->
+<!--                <div class="product-card" th:each="product : ${books}">-->
+<!--                    <div class="card border rounded shadow-sm d-flex flex-column h-100">-->
+<!--                        <span class="badge bg-danger position-absolute discount-badge"-->
+<!--                              th:id="'discount-badge-' + ${product.id}"-->
+<!--                              th:style="${product.hasDiscount()} ? '' : 'display: none;'"-->
+<!--                              th:text="'-' + ${#numbers.formatDecimal(product.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>-->
+<!--                        <img th:src="${product.mainImageUrl != null} ? ${product.mainImageUrl} : '/images/placeholder.png'"-->
+<!--                             class="card-img-top" th:alt="${product.tenSach}">-->
+<!--                        <div class="card-body text-center d-flex flex-column">-->
+<!--                            <a th:href="@{/book/sanpham(id=${product.id})}" class="card-title text-decoration-none">-->
+<!--                                <h6 th:text="${product.tenSach}"></h6>-->
+<!--                            </a>-->
+<!--                            <div class="price-section">-->
+<!--                                <div th:id="'discounted-price-' + ${product.id}" class="discounted-price"-->
+<!--                                     th:data-price="${product.getDiscountedPrice()}"-->
+<!--                                     th:text="${#numbers.formatDecimal(product.getDiscountedPrice(), 0, 0)} + 'đ'"></div>-->
+<!--                                <div th:id="'original-price-' + ${product.id}" class="original-price"-->
+<!--                                     th:style="${product.hasDiscount()} ? '' : 'display: none;'"-->
+<!--                                     th:data-price="${product.getDefaultDonViTinh().gia}"-->
+<!--                                     th:text="${#numbers.formatDecimal(product.getDefaultDonViTinh().gia, 0, 0)} + 'đ'"></div>-->
+<!--                            </div>-->
+<!--                            <button class="btn btn-primary w-100 mt-auto"-->
+<!--                                    th:onclick="'addToCart(' + ${product.id} + ')'">-->
+<!--                                Thêm vào giỏ hàng-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Thông báo nếu không có sản phẩm &ndash;&gt;-->
+<!--                <div class="text-center text-muted" th:unless="${books != null and not #lists.isEmpty(books)}">-->
+<!--                    Hiện tại chưa có sản phẩm nào.-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Phân trang &ndash;&gt;-->
+<!--        <nav aria-label="Page navigation" class="mt-4" th:if="${totalPages > 1}">-->
+<!--            <ul class="pagination justify-content-center">-->
+<!--                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">-->
+<!--                    <a class="page-link" th:href="@{/(page=${currentPage - 1}, categoryId=${categoryId})}">Previous</a>-->
+<!--                </li>-->
+<!--                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"-->
+<!--                    th:classappend="${i == currentPage} ? 'active'">-->
+<!--                    <a class="page-link" th:href="@{/(page=${i}, categoryId=${categoryId})}" th:text="${i + 1}"></a>-->
+<!--                </li>-->
+<!--                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">-->
+<!--                    <a class="page-link" th:href="@{/(page=${currentPage + 1}, categoryId=${categoryId})}">Next</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </nav>-->
+<!--    </div>-->
+
+    <!-- Hiển thị danh sách sách -->
     <div class="container mt-4">
         <h4 class="mb-3">Danh sách sản phẩm</h4>
         <div class="product-scroll-container">
-            <div class="product-list">
-                <div class="product-card" th:each="product : ${books}">
+            <div class="product-list row row-cols-1 row-cols-md-5 g-4">
+                <div class="col product-card" th:each="product : ${books}">
                     <div class="card border rounded shadow-sm d-flex flex-column h-100">
-                        <span class="badge bg-danger position-absolute discount-badge"
-                              th:id="'discount-badge-' + ${product.id}"
-                              th:style="${product.hasDiscount()} ? '' : 'display: none;'"
-                              th:text="'-' + ${#numbers.formatDecimal(product.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>
+                    <span class="badge bg-danger position-absolute discount-badge"
+                          th:id="'discount-badge-' + ${product.id}"
+                          th:style="${product.hasDiscount()} ? '' : 'display: none;'"
+                          th:text="'-' + ${#numbers.formatDecimal(product.getDefaultDonViTinh().discount, 0, 0)} + '%'"></span>
                         <img th:src="${product.mainImageUrl != null} ? ${product.mainImageUrl} : '/images/placeholder.png'"
                              class="card-img-top" th:alt="${product.tenSach}">
                         <div class="card-body text-center d-flex flex-column">
