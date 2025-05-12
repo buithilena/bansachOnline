@@ -1,116 +1,139 @@
+
 <div th:fragment="dropdowns">
-  <link rel="stylesheet" href="/css/dropdowns.css">
+    <link rel="stylesheet" href="/css/dropdowns.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav" id="category-list">
-          <!-- Danh mục sẽ được render động bằng JavaScript -->
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Template cho mỗi dropdown -->
-  <script type="text/template" id="category-template">
-    <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" role="button">{categoryName}</a>
-      <div class="dropdown-menu">
-        <div class="menu-right">
-          <div class="menu-category">Sách nổi bật</div>
-          <div class="product-grid" data-category-id="{categoryId}">
-            <!-- Sách nổi bật sẽ được render động -->
-          </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" id="category-list">
+                    <!-- Danh mục sẽ được render động bằng JavaScript -->
+                </ul>
+            </div>
         </div>
-      </div>
-    </li>
-  </script>
+    </nav>
 
-  <!-- Template cho mỗi sản phẩm -->
-  <script type="text/template" id="product-template">
-    <div class="product">
-      <img src="{imageUrl}" alt="">
-      <div>{bookName}<br>{price}</div>
-    </div>
-  </script>
+    <!-- Template cho mỗi dropdown -->
+    <script type="text/template" id="category-template">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">{categoryName}</a>
+            <div class="dropdown-menu">
+                <div class="menu-right">
+                    <div class="menu-category">Sách nổi bật</div>
+                    <div class="product-grid" data-category-id="{categoryId}">
+                        <!-- Sách nổi bật sẽ được render động -->
+                    </div>
+                </div>
+            </div>
+        </li>
+    </script>
 
-  <script>
-    // Hàm thay thế dữ liệu vào template
-    function renderTemplate(templateId, data) {
-      let template = document.getElementById(templateId).innerText;
-      for (const key in data) {
-        template = template.replace(`{${key}}`, data[key]);
-      }
-      return template;
-    }
+    <!-- Template cho mỗi sản phẩm -->
+    <script type="text/template" id="product-template">
+        <div class="product">
+            <img src="{imageUrl}" alt="">
+            <div>{bookName}<br>{price}</div>
+        </div>
+    </script>
 
-    // Lấy danh sách danh mục
-    fetch('/api/quanly/categories')
+    <script>
+        // Hàm thay thế dữ liệu vào template
+        function renderTemplate(templateId, data) {
+            let template = document.getElementById(templateId).innerText;
+            for (const key in data) {
+                template = template.replace(`{${key}}`, data[key]);
+            }
+            return template;
+        }
+
+        // Hàm tải sách nổi bật cho danh mục
+        function loadFeaturedBooks(categoryId, productGrid) {
+            // Kiểm tra xem sách đã được tải chưa
+            if (productGrid.dataset.loaded === 'true') {
+                return;
+            }
+
+            fetch(`/book/featured-books?danhMucId=${categoryId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Lỗi khi lấy sách nổi bật: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(books => {
+                    if (!productGrid) {
+                        console.error('Không tìm thấy product-grid cho danh mục:', categoryId);
+                        return;
+                    }
+
+                    if (books.length === 0) {
+                        productGrid.innerHTML = '<div>Chưa có sách nổi bật</div>';
+                        productGrid.dataset.loaded = 'true';
+                        return;
+                    }
+
+                    books.forEach(book => {
+                        const mainImage = book.bookImages && book.bookImages.find(img => img.isMain) || { imageUrl: '/images/placeholder.png' };
+                        const donViGia = book.donViGias && book.donViGias[0] || { gia: 0 };
+                        const productHtml = renderTemplate('product-template', {
+                            imageUrl: mainImage.imageUrl || '/images/placeholder.png',
+                            bookName: book.tenSach || 'Không có tên',
+                            price: donViGia.gia ? donViGia.gia.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'
+                        });
+                        productGrid.insertAdjacentHTML('beforeend', productHtml);
+                    });
+                    productGrid.dataset.loaded = 'true'; // Đánh dấu đã tải
+                })
+                .catch(error => {
+                    console.error(`Lỗi khi lấy sách nổi bật cho danh mục ${categoryId}:`, error);
+                    if (productGrid) {
+                        productGrid.innerHTML = '<div>Lỗi khi tải sách</div>';
+                        productGrid.dataset.loaded = 'true';
+                    }
+                });
+        }
+
+        // Lấy danh sách danh mục
+        fetch('/api/quanly/categories')
             .then(response => {
-              if (!response.ok) {
-                throw new Error('Lỗi khi lấy danh mục: ' + response.status);
-              }
-              return response.json();
+                if (!response.ok) {
+                    throw new Error('Lỗi khi lấy danh mục: ' + response.status);
+                }
+                return response.json();
             })
             .then(categories => {
-              const categoryList = document.getElementById('category-list');
-              categories.forEach(category => {
-                // Kiểm tra category.id có tồn tại
-                if (!category.id) {
-                  console.error('Danh mục không có id:', category);
-                  return;
+                const categoryList = document.getElementById('category-list');
+                if (categories.length === 0) {
+                    categoryList.innerHTML = '<li>Không có danh mục nào</li>';
+                    return;
                 }
 
-                // Render dropdown cho mỗi danh mục
-                const categoryHtml = renderTemplate('category-template', {
-                  categoryName: category.tenDanhMuc || 'Không có tên',
-                  categoryId: category.id
+                categories.forEach(category => {
+                    if (!category.id) {
+                        console.error('Danh mục không có id:', category);
+                        return;
+                    }
+
+                    // Render dropdown cho mỗi danh mục
+                    const categoryHtml = renderTemplate('category-template', {
+                        categoryName: category.tenDanhMuc || 'Không có tên',
+                        categoryId: category.id
+                    });
+                    categoryList.insertAdjacentHTML('beforeend', categoryHtml);
+
+                    // Thêm sự kiện mouseenter để tải sách khi hover
+                    const dropdown = categoryList.querySelector(`.dropdown:last-child`);
+                    const productGrid = dropdown.querySelector(`.product-grid[data-category-id="${category.id}"]`);
+                    dropdown.addEventListener('mouseenter', () => {
+                        loadFeaturedBooks(category.id, productGrid);
+                    });
                 });
-                categoryList.insertAdjacentHTML('beforeend', categoryHtml);
-
-                // Lấy sách nổi bật cho danh mục
-                fetch(`/book/featured-books?danhMucId=${category.id}`)
-                        .then(response => {
-                          if (!response.ok) {
-                            throw new Error('Lỗi khi lấy sách nổi bật: ' + response.status);
-                          }
-                          return response.json();
-                        })
-                        .then(books => {
-                          const productGrid = document.querySelector(`.product-grid[data-category-id="${category.id}"]`);
-                          if (!productGrid) {
-                            console.error('Không tìm thấy product-grid cho danh mục:', category.id);
-                            return;
-                          }
-
-                          if (books.length === 0) {
-                            productGrid.innerHTML = '<div>Chưa có sách nổi bật</div>';
-                            return;
-                          }
-
-                          books.forEach(book => {
-                            const mainImage = book.bookImages && book.bookImages.find(img => img.isMain) || { imageUrl: '/images/placeholder.png' };
-                            const donViGia = book.donViGias && book.donViGias[0] || { gia: 0 };
-                            const productHtml = renderTemplate('product-template', {
-                              imageUrl: mainImage.imageUrl,
-                              bookName: book.tenSach || 'Không có tên',
-                              price: donViGia.gia ? donViGia.gia.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'
-                            });
-                            productGrid.insertAdjacentHTML('beforeend', productHtml);
-                          });
-                        })
-                        .catch(error => {
-                          console.error(`Lỗi khi lấy sách nổi bật cho danh mục ${category.id}:`, error);
-                          const productGrid = document.querySelector(`.product-grid[data-category-id="${category.id}"]`);
-                          if (productGrid) {
-                            productGrid.innerHTML = '<div>Lỗi khi tải sách</div>';
-                          }
-                        });
-              });
             })
             .catch(error => {
-              console.error('Lỗi khi lấy danh mục:', error);
-              document.getElementById('category-list').innerHTML = '<li>Lỗi khi tải danh mục</li>';
+                console.error('Lỗi khi lấy danh mục:', error);
+                document.getElementById('category-list').innerHTML = '<li>Lỗi khi tải danh mục</li>';
             });
-  </script>
+    </script>
 </div>

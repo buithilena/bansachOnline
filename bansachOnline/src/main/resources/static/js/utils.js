@@ -1,3 +1,4 @@
+
 class Utils {
     // Hiển thị thông báo với SweetAlert2, có fallback nếu không tải được
     static showAlert(icon, title, text, options = {}) {

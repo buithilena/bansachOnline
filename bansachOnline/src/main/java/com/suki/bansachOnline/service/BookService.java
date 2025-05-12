@@ -1,13 +1,16 @@
+
 package com.suki.bansachOnline.service;
 
 import com.suki.bansachOnline.model.*;
 import com.suki.bansachOnline.respository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,10 +20,17 @@ import java.util.stream.Collectors;
 public class BookService {
     private final BookRepository bookRepository;
     private final DoiTuongRepository doiTuongRepository;
-    private final DonViGiaRepository donViGiaRepository;
-    private final BookImageRepository bookImageRepository;
+//    private final DonViGiaRepository donViGiaRepository;
+//    private final BookImageRepository bookImageRepository;
     private final ChiTietSachRepository chiTietSachRepository;
     private final CauHoiLienQuanRepository cauHoiLienQuanRepository;
+
+    @Autowired
+    private  DonViGiaRepository donViGiaRepository;
+
+
+    @Autowired
+    private  BookImageRepository bookImageRepository;
 
     public Page<Book> getBooks(Pageable pageable) {
         return bookRepository.findAll(pageable);
@@ -100,11 +110,11 @@ public class BookService {
 
 
     // Cập nhật phương thức để lấy sách nổi bật có so_luong > 50
-    public List<Book> getFeaturedBooksByCategory(Integer danhMucId, int limit) {
-        Pageable pageable = PageRequest.of(0, limit);
-        Page<Book> books = bookRepository.findByDanhMucIdAndSoLuongGreaterThan50(danhMucId, pageable);
-        return books.getContent();
-    }
+//    public List<Book> getFeaturedBooksByCategory(Integer danhMucId, int limit) {
+//        Pageable pageable = PageRequest.of(0, limit);
+//        Page<Book> books = bookRepository.findByDanhMucIdAndSoLuongGreaterThan50(danhMucId, pageable);
+//        return books.getContent();
+//    }
 
     // Thêm phương thức tìm kiếm sách
     public Page<Book> searchBooks(String query, Integer danhMucId, Pageable pageable) {
@@ -114,6 +124,25 @@ public class BookService {
         return bookRepository.findByTenSachContainingIgnoreCase(query, pageable);
 
 
+    }
+
+    public List<Book> getFeaturedBooksByCategory(Integer danhMucId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<Book> books = bookRepository.findByDanhMucIdAndSoLuongGreaterThan50(danhMucId, pageable);
+        List<Book> bookList = books.getContent();
+
+        // Tải donViGias và bookImages cho từng sách
+        bookList.forEach(book -> {
+            // Chuyển List<DonViGia> thành Set<DonViGia>
+            List<DonViGia> donViGiaList = donViGiaRepository.findByBookId(book.getId());
+            book.setDonViGias(new HashSet<>(donViGiaList));
+
+            // Chuyển List<BookImage> thành Set<BookImage>
+            List<BookImage> bookImageList = bookImageRepository.findByBookId(book.getId());
+            book.setBookImages(new HashSet<>(bookImageList));
+        });
+
+        return bookList;
     }
 
 
