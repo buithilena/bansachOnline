@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Home Page</title>
+    <title>Thông Tin Cá Nhân</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <link rel="icon" type="logonew/png" th:href="@{/image/logo.png}" >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <link rel="stylesheet" href="/css/thongtincanhan.css">
 
 </head>
 <body>
-
 <div th:replace="~{giaodien/header :: header}"></div>
-<!--<div th:replace="~{giaodien/dropdowns :: dropdowns}"></div>-->
 <main>
-    <div class="container mt-4" >
+    <div class="container mt-4">
         <nav style="--bs-breadcrumb-divider: '/';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/" style="text-decoration: none;">Trang chủ</a></li>
@@ -28,149 +26,119 @@
         <div class="row align-items-start">
             <div class="col-md-3">
                 <div class="profile-card">
-                    <div class="profile-img" ></div>
-                    <h5 class="mt-2" > <span th:text="${name}"></span></h5>
-                    <!--                    <p class="mb-0" >0325005057</p>-->
-                    <p> <span th:text="${phoneNumber != null ? phoneNumber : 'Không có phoneNumber'}"></span></p>
+                    <div class="profile-img"></div>
+                    <h5 class="mt-2"><span th:text="${name}"></span></h5>
+                    <p><span th:text="${phoneNumber != null ? phoneNumber : 'Chưa có số điện thoại'}"></span></p>
                 </div>
                 <div class="sidebar">
                     <ul class="list-group list-group-flush" id="sidebar-menu">
                         <li class="list-group-item menu-item active" data-section="personal"><i class="bi bi-person"></i> Thông tin cá nhân</li>
                         <li class="list-group-item menu-item" data-section="orders"><i class="bi bi-box"></i> Đơn hàng của tôi</li>
-                        <li class="list-group-item menu-item" data-section="addresses"><i class="bi bi-geo-alt"></i> Quản lý số địa chỉ</li>
-                        <li class="list-group-item menu-item" data-section="appointments"><i class="bi bi-calendar-check"></i> Lịch hẹn tiêm chủng</li>
-                        <li class="list-group-item menu-item" data-section="vaccination-orders"><i class="bi bi-shield"></i> Đơn hàng tiêm chủng</li>
-                        <li class="list-group-item menu-item" data-section="prescriptions"><i class="bi bi-capsule"></i> Đơn thuốc của tôi</li>
+                        <li class="list-group-item menu-item" data-section="addresses"><i class="bi bi-geo-alt"></i> Quản lý địa chỉ</li>
                         <li class="list-group-item text-danger menu-item" data-section="logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</li>
                     </ul>
                 </div>
             </div>
             <div class="col-md-9">
                 <div id="content-area" class="content-card">
-                    <!-- Thông tin cá nhân (Updated to match the screenshot) -->
+                    <!-- Thông tin cá nhân -->
                     <div class="card-content personal-content" id="personal-content">
                         <h4 class="mb-3">Thông tin cá nhân</h4>
                         <div class="profile-img" style="width: 80px; height: 80px; margin: 0 auto 20px;"></div>
                         <table class="table personal-table">
                             <tr>
                                 <th>Họ và tên</th>
-                                <td style="text-align: right">  <span th:text="${name}">Trần Khắc Sơn</span></td>
+                                <td style="text-align: right"><span th:text="${name != null ? name : 'Chưa có thông tin'}"></span></td>
                             </tr>
                             <tr>
                                 <th>Số điện thoại</th>
-                                <td style="text-align: right"> <span th:text="${phoneNumber != null ? phoneNumber : 'Không có phoneNumber'}"></span></td>
+                                <td style="text-align: right"><span th:text="${phoneNumber != null ? phoneNumber : 'Chưa có số điện thoại'}"></span></td>
                             </tr>
                             <tr>
-                                <th>Giới tính</th>
-                                <td style="text-align: right"><a href="#" class="text-primary" >Thêm thông tin</a></td>
+                                <th>Email</th>
+                                <td style="text-align: right"><span th:text="${email != null ? email : 'Chưa có email'}"></span></td>
                             </tr>
                             <tr>
                                 <th>Ngày sinh</th>
-                                <td style="text-align: right"><a href="#" class="text-primary">Thêm thông tin</a></td>
+                                <td style="text-align: right">
+                                    <span th:text="${dateOfBirth != null ? dateOfBirth : 'Chưa có thông tin'}"></span>
+                                    <a th:if="${dateOfBirth == null}" href="#" class="text-primary">Thêm thông tin</a>
+                                </td>
                             </tr>
                         </table>
-                        <button class="btn btn-edit mt-4">Chỉnh sửa thông tin</button>
+                        <button class="btn btn-edit btn-primary mt-4">Chỉnh sửa thông tin</button>
                     </div>
                     <!-- Đơn hàng của tôi -->
+                    <!-- Thay thế phần orders-content -->
                     <div class="card-content" id="orders-content" style="display: none;">
                         <div class="search-bar">
-                            <input type="text" class="search-input" placeholder="Tìm theo tên đơn, hóa đơn, tên sản phẩm...">
+                            <input type="text" class="search-input" placeholder="Tìm theo mã đơn, tên sách...">
                             <i class="bi bi-search search-icon"></i>
                         </div>
                         <div class="tab-nav">
-                            <a href="#" class="active">Tất cả</a>
-                            <a href="#">Đang xử lý</a>
-                            <a href="#">Đang giao</a>
-                            <a href="#">Đã giao</a>
-                            <a href="#">Đã hủy</a>
-                            <a href="#">Trả hàng</a>
+                            <a href="#" class="active" data-status="all">Tất cả</a>
+                            <a href="#" data-status="pending">Đang xử lý</a>
+                            <a href="#" data-status="completed">Đã giao</a>
+                            <a href="#" data-status="canceled">Đã hủy</a>
                         </div>
-                        <div class="no-orders text-center">
-                            <img src="/image/donhang.png" alt="Không có đơn hàng" class="no-orders-img">
+                        <div class="orders-list" th:unless="${orders == null or orders.isEmpty()}">
+                            <div class="order-item" th:each="order : ${orders}">
+                                <div class="order-header">
+                                    <span>Mã đơn: <strong th:text="${order.id}"></strong></span>
+                                    <span>Ngày đặt: <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span></span>
+                                    <span>Trạng thái: <span th:text="${order.status}"></span></span>
+                                </div>
+                                <div class="order-details">
+                                    <p><strong>Khách hàng:</strong> <span th:text="${order.customerName}"></span></p>
+                                    <p><strong>Số điện thoại:</strong> <span th:text="${order.customerPhone}"></span></p>
+                                    <p><strong>Địa chỉ:</strong> <span th:text="${order.customerAddress}"></span></p>
+                                    <p><strong>Tổng tiền:</strong> <span th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+                                    <p><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentMethod}"></span></p>
+                                </div>
+                                <div class="order-actions">
+                                    <a th:href="@{'/order/' + ${order.id}}" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                                    <button class="btn btn-outline-danger btn-sm" th:if="${order.status == 'pending'}" onclick="cancelOrder(${order.id})">Hủy đơn</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="no-orders text-center" th:if="${orders == null or orders.isEmpty()}">
+                            <img src="/images/no-orders.png" alt="Không có đơn hàng" class="no-orders-img">
                             <p class="mt-3 mb-1">Bạn chưa có đơn hàng nào.</p>
-                            <p class="mb-3">Cùng khám phá hàng ngàn sản phẩm tại Nhà thuốc FPT Long Châu ngay hôm nay!</p>
-                            <button class="btn btn-primary">Khám phá ngay</button>
+                            <p class="mb-3">Khám phá ngay kho sách phong phú của chúng tôi!</p>
+                            <a href="/books" class="btn btn-primary">Mua sắm ngay</a>
                         </div>
                     </div>
-                    <!-- Quản lý số địa chỉ -->
+                    <!-- Quản lý địa chỉ -->
                     <div class="card-content" id="addresses-content" style="display: none;">
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary">Thêm địa chỉ mới</button>
                         </div>
-                        <div class="address-list">
-                            <div class="address-item">
-                                <h5>Trần Khắc Sơn | 0325005057</h5>
-                                <p>22 lền kề 26, Xá Vạn Cần, Huyện Hoài Đức, Hà Nội</p>
-                                <p class="text-muted">Mặc định</p>
-                                <a href="#" class="text-primary">Sửa</a>
+                        <div class="address-list" th:if="${addresses != null and not addresses.isEmpty()}">
+                            <div class="address-item" th:each="address : ${addresses}">
+                                <h5><span th:text="${address.name}"></span> | <span th:text="${address.phoneNumber}"></span></h5>
+                                <p th:text="${address.fullAddress}"></p>
+                                <p class="text-muted" th:if="${address.isDefault}">Mặc định</p>
+                                <a href="#" class="text-primary" th:href="@{'/address/edit/' + ${address.id}}">Sửa</a>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Lịch hẹn tiêm chủng -->
-                    <div class="card-content" id="appointments-content" style="display: none;">
-                        <div class="qr-card">
-                            <h4 class="mb-3">Mã Quy Khách tại ứng dụng Long Châu để xem nội dung lịch hẹn tiêm chủng</h4>
-                            <div class="qr-code">
-                                <img src="https://via.placeholder.com/200" alt="QR Code">
-                            </div>
-                            <p class="mt-3 mb-1">Quét QR ngay với camera của điện thoại bạn để tải ứng dụng</p>
-                            <p class="mb-1">Long Châu QR</p>
-                            <p>Học liên App Store hoặc Google Play để tìm và ứng dụng</p>
-                        </div>
-                    </div>
-
-                    <!-- Đơn hàng tiêm chủng -->
-                    <div class="card-content" id="vaccination-orders-content" style="display: none;">
-                        <div class="search-bar">
-                            <input type="text" class="search-input" placeholder="Tìm kiếm hóa đơn...">
-                            <i class="bi bi-search search-icon"></i>
-                        </div>
-                        <div class="tab-nav">
-                            <a href="#" class="active">Tất cả</a>
-                            <a href="#">Chờ tư vấn</a>
-                            <a href="#">Đã tư vấn</a>
-                            <a href="#">Chưa liên lạc</a>
-                        </div>
-                        <div class="no-orders text-center">
-                            <img src="https://via.placeholder.com/100" alt="No vaccination orders" style="opacity: 0.7;">
-                            <p class="mt-3 mb-1">Bạn chưa có đơn hàng nào.</p>
-                            <p class="mb-3">Đặt lịch tiêm chủng ngay để nhận ưu đãi từ Long Châu</p>
-                            <button class="btn btn-primary">Đặt lịch ngay</button>
-                        </div>
-                    </div>
-
-                    <!-- Đơn thuốc của tôi -->
-                    <div class="card-content" id="prescriptions-content" style="display: none;">
-                        <div class="tab-nav">
-                            <a href="#" class="active">Tất cả</a>
-                            <a href="#">Chờ tư vấn</a>
-                            <a href="#">Đã tư vấn</a>
-                            <a href="#">Chưa liên lạc</a>
-                        </div>
-                        <div class="no-prescriptions text-center">
-                            <img src="https://via.placeholder.com/100" alt="No prescriptions" style="opacity: 0.7;">
-                            <p class="mt-3 mb-1">Bạn chưa có yêu cầu nào.</p>
-                            <p class="mb-3">Đặt đơn Long Châu liền sáng lòng lành nghệ</p>
-                            <button class="btn btn-primary">Gửi yêu cầu mới</button>
+                        <div class="no-addresses text-center" th:if="${addresses == null or addresses.isEmpty()}">
+                            <img src="/images/no-address.png" alt="Không có địa chỉ" class="no-orders-img">
+                            <p class="mt-3 mb-1">Bạn chưa có địa chỉ nào.</p>
+                            <p class="mb-3">Thêm địa chỉ để nhận sách nhanh chóng!</p>
+                            <button class="btn btn-primary">Thêm địa chỉ</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
 </main>
 <div th:replace="~{giaodien/footer :: footer}"></div>
-<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const menuItems = document.querySelectorAll('.menu-item');
         const contentArea = document.getElementById('content-area');
-        const pageTitle = document.getElementById('page-title');
 
         menuItems.forEach(item => {
             item.addEventListener('click', function(e) {
@@ -183,41 +151,105 @@
                 const contents = contentArea.querySelectorAll('.card-content');
                 contents.forEach(content => content.style.display = 'none');
 
-                let title = 'Thông tin cá nhân';
                 switch(section) {
                     case 'personal':
                         document.getElementById('personal-content').style.display = 'block';
-                        title = 'Thông tin cá nhân';
                         break;
                     case 'orders':
                         document.getElementById('orders-content').style.display = 'block';
-                        title = 'Đơn hàng của tôi';
                         break;
                     case 'addresses':
                         document.getElementById('addresses-content').style.display = 'block';
-                        title = 'Quản lý số địa chỉ';
-                        break;
-                    case 'appointments':
-                        document.getElementById('appointments-content').style.display = 'block';
-                        title = 'Lịch hẹn tiêm chủng';
-                        break;
-                    case 'vaccination-orders':
-                        document.getElementById('vaccination-orders-content').style.display = 'block';
-                        title = 'Đơn hàng tiêm chủng';
-                        break;
-                    case 'prescriptions':
-                        document.getElementById('prescriptions-content').style.display = 'block';
-                        title = 'Đơn thuốc của tôi';
                         break;
                     case 'logout':
-                        window.location.href = '/login';
+                        window.location.href = '/logout';
                         return;
                 }
-                pageTitle.textContent = title;
             });
         });
     });
-</script>
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentArea = document.getElementById('content-area');
+        const tabLinks = document.querySelectorAll('.tab-nav a');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+
+                menuItems.forEach(menu => menu.classList.remove('active'));
+                this.classList.add('active');
+
+                const contents = contentArea.querySelectorAll('.card-content');
+                contents.forEach(content => content.style.display = 'none');
+
+                switch(section) {
+                    case 'personal':
+                        document.getElementById('personal-content').style.display = 'block';
+                        break;
+                    case 'orders':
+                        document.getElementById('orders-content').style.display = 'block';
+                        break;
+                    case 'addresses':
+                        document.getElementById('addresses-content').style.display = 'block';
+                        break;
+                    case 'logout':
+                        window.location.href = '/logout';
+                        return;
+                }
+            });
+        });
+
+        // Xử lý lọc trạng thái đơn hàng
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                tabLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                const status = this.getAttribute('data-status');
+                filterOrders(status);
+            });
+        });
+
+        function filterOrders(status) {
+            const orderItems = document.querySelectorAll('.order-item');
+            orderItems.forEach(item => {
+                const orderStatus = item.querySelector('.order-header span:nth-child(3) span').textContent.trim();
+                if (status === 'all' || orderStatus.toLowerCase() === status) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Hàm hủy đơn hàng (tạm thời)
+        window.cancelOrder = function(orderId) {
+            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+                fetch(`/order/cancel/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Đơn hàng đã được hủy!');
+                            window.location.reload();
+                        } else {
+                            alert('Lỗi: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Lỗi khi hủy đơn hàng: ' + error.message);
+                    });
+            }
+        };
+    });
+</script>
 </body>
 </html>

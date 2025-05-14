@@ -14,6 +14,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/css/quanly.css">
+
+    <!-- ExcelJS và jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 </head>
 <body>
 <!-- Thanh điều hướng (Sidebar) -->
@@ -405,7 +410,9 @@
         <h3 class="mt-5">Danh sách sản phẩm</h3>
         <div class="mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Thêm sản phẩm</button>
-            <button class="btn btn-success">Xuất PDF</button>
+<!--            <button class="btn btn-success">Xuất PDF</button>-->
+            <button class="btn btn-success export-pdf" data-type="pdf">Xuất PDF</button>
+            <button class="btn btn-success export-excel" data-type="excel">Xuất Excel</button>
         </div>
         <div class="mb-3">
             <input type="text" class="form-control" id="search-products" placeholder="Tìm kiếm sản phẩm...">
