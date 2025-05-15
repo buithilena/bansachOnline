@@ -395,5 +395,25 @@ public class QuanlyController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/dashboard/summary")
+    public ResponseEntity<Map<String, Object>> getDashboardSummary() {
+        Map<String, Object> summary = quanlyService.getDashboardSummary();
+        return ResponseEntity.ok(summary);
+    }
+
+    // Endpoint để lấy thống kê đơn hàng
+    @GetMapping("/dashboard/order-stats")
+    public ResponseEntity<Map<String, Long>> getOrderStats() {
+        Map<String, Long> stats = quanlyService.getOrderStats();
+        return ResponseEntity.ok(stats);
+    }
+
+    // Endpoint để lấy thống kê sản phẩm theo danh mục
+    @GetMapping("/dashboard/product-category-stats")
+    public ResponseEntity<Map<String, Long>> getProductCategoryStats() {
+        Map<String, Long> stats = quanlyService.getProductCategoryStats();
+        return ResponseEntity.ok(stats);
+    }
+
 
 }

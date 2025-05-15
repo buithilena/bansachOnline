@@ -4,6 +4,8 @@ import com.suki.bansachOnline.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,10 +16,11 @@ public interface OrdersRepository extends JpaRepository<Order, Integer> {
     Page<Order> findByUserNameContainingIgnoreCaseOrUserEmailContainingIgnoreCase(
             String name, String email, Pageable pageable);
 
-    // Thêm phương thức để lấy đơn hàng theo userId và trạng thái (tùy chọn)
     Page<Order> findByUserIdAndStatus(UUID userId, Order.OrderStatus status, Pageable pageable);
 
-    // Thêm phương thức để lấy tất cả đơn hàng theo userId
     Page<Order> findByUserId(UUID userId, Pageable pageable);
 
+    // Đếm số lượng đơn hàng theo trạng thái
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = :status")
+    long countByStatus(@Param("status") Order.OrderStatus status);
 }

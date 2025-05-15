@@ -10,9 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class QuanlyService {
@@ -410,5 +408,38 @@ public class QuanlyService {
                 .orElseThrow(() -> new IllegalArgumentException("Đơn hàng không tồn tại"));
         existingOrder.setStatus(order.getStatus());
         return orderRepository.save(existingOrder);
+    }
+
+
+    // Lấy dữ liệu tổng quan cho dashboard
+    public Map<String, Object> getDashboardSummary() {
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("totalUsers", userRepository.count());
+        summary.put("totalOrders", orderRepository.count());
+        summary.put("totalProducts", bookRepository.count());
+        summary.put("newReviews", 0); // Thêm logic cho đánh giá mới nếu cần
+        return summary;
+    }
+
+
+    // Thống kê đơn hàng theo trạng thái
+    public Map<String, Long> getOrderStats() {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("pending", orderRepository.countByStatus(Order.OrderStatus.pending));
+        stats.put("completed", orderRepository.countByStatus(Order.OrderStatus.completed));
+        stats.put("canceled", orderRepository.countByStatus(Order.OrderStatus.canceled));
+        return stats;
+    }
+
+    // Thống kê sản phẩm theo danh mục
+    public Map<String, Long> getProductCategoryStats() {
+        List<Object[]> results = bookRepository.countBooksByCategory();
+        Map<String, Long> stats = new HashMap<>();
+        for (Object[] result : results) {
+            String categoryName = (String) result[0];
+            Long count = (Long) result[1];
+            stats.put(categoryName, count);
+        }
+        return stats;
     }
 }
